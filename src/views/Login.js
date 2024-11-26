@@ -16,6 +16,7 @@ import useLogOut from './LogoutState';
 //const {username,password,handleSignupUsernameChange,handleSignupPasswordChange,handleSignup} = useSignupState();
 const Login = ({onSubmit, onClose}) => {
     console.log("rendering login");
+    //console.log(username, password);
     //const {handleSignupUsernameChange,handleSignupPasswordChange,handleSignup} = useSignupState();
 
     const {

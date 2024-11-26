@@ -29,7 +29,7 @@ const mapper = item => {
         case 'setting':
             return <SettingPanel key={name} data={data} />;
         case 'videoPlay': // 비디오 재생 패널 처리
-            return <VideoPlayPanel key={name} video={data.video} onClose={() => {/* 패널 닫기 로직 */}} />;
+            return <VideoPlayPanel key={name} video={data.video} startTime = {data.startTime} onClose={() => {/* 패널 닫기 로직 */}} />;
         default:
             return <Main key={name} />;
             //return <Login key={name} />;
