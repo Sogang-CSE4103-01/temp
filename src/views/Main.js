@@ -10,6 +10,7 @@ import { useCallback, useContext } from 'react';
 import { PanelContext } from './Context';
 import { useMainState } from './MainState'; // 비디오 데이터를 가져오기 위한 훅
 
+
 const tabsWithIcons = [
 	{ title: 'Home', icon: 'home' },
 	{ title: 'Button', icon: 'gear' },
@@ -22,9 +23,11 @@ const Main = (props) => {
 
 	const handleClick = useCallback(
 		index => () => {
-			setPanelData(prev => [...prev, { name: 'detail', data: { index } }]); // 디테일 패널로 이동
+			// 비디오 재생 패널로 이동
+			console.log('Selected Video:', videoData[index]); // 클릭한 비디오 정보 로그
+			setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: videoData[index] } }]);
 		},
-		[setPanelData]
+		[setPanelData, videoData]
 	);
 
 	// 비디오 컴포넌트 렌더링
@@ -38,7 +41,7 @@ const Main = (props) => {
 				width: scaleToRem(768),
 				height: scaleToRem(588)
 			}}
-			onClick={handleClick(video.id)} // 클릭 시 디테일로 이동
+			onClick={handleClick(video.id - 1)} // 클릭 시 비디오 재생 패널로 이동
 		>
 			{video.title} {/* 비디오 제목을 표시 */}
 		</ImageItem>
