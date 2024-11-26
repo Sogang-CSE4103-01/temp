@@ -9,6 +9,7 @@ import { isDevServe } from '../libs/utils';
 import DetailPanel from '../views/DetailPanel';
 import { PanelContext } from '../views/Context';
 import SettingPanel from '../views/SettingPanel';
+import Login from '../views/Login';
 
 // 실습 : 동적 panel 이동 기능 구현하기
 
@@ -17,12 +18,15 @@ const mapper = item => {
     switch (name) {
         case 'main':
             return <Main key={name} data={data} />;
-        case 'detail':
-            return <DetailPanel key={name} data={data} />;
-        case 'setting':
-            return <SettingPanel key={name} data={data} />;
+        //case 'detail':
+        //    return <DetailPanel key={name} data={data} />;
+        //case 'setting':
+        //   return <SettingPanel key={name} data={data} />;
+        case 'login':
+            return <Login key={name} />;
         default:
             return <Main key={name} />;
+            //return <Login key={name} />;
     }
 };
 

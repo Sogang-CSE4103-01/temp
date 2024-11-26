@@ -4,7 +4,7 @@ export const PanelContext = createContext();
 
 export const Provider = props => {
 	const [panelData, setPanelData] = useState([
-		{name: 'main', data: {}}
+		{name: 'login', data: {}}
 	]);
 	return (
 		<PanelContext.Provider
