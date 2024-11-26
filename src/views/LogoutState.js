@@ -11,6 +11,7 @@ export const useLogOut = () => {
         setIsLoggedOut(true);
 
         console.log("logout requested");
+        console.log(username, password);
 
         setUsername('');
         setPassword('');
