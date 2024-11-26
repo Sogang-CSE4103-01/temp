@@ -1,4 +1,3 @@
-// App.js
 /* eslint-disable */
 import { useContext, useState } from 'react';
 import ThemeDecorator from '@enact/sandstone/ThemeDecorator';
@@ -10,6 +9,7 @@ import DetailPanel from '../views/DetailPanel';
 import { PanelContext } from '../views/Context';
 import SettingPanel from '../views/SettingPanel';
 import Login from '../views/Login';
+import VideoPlayPanel from '../views/VideoPlayer'; // 비디오 재생 패널 임포트
 
 // 실습 : 동적 panel 이동 기능 구현하기
 
@@ -24,6 +24,12 @@ const mapper = item => {
         //   return <SettingPanel key={name} data={data} />;
         case 'login':
             return <Login key={name} />;
+        case 'detail':
+            return <DetailPanel key={name} data={data} />;
+        case 'setting':
+            return <SettingPanel key={name} data={data} />;
+        case 'videoPlay': // 비디오 재생 패널 처리
+            return <VideoPlayPanel key={name} video={data.video} onClose={() => {/* 패널 닫기 로직 */}} />;
         default:
             return <Main key={name} />;
             //return <Login key={name} />;
