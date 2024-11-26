@@ -11,6 +11,8 @@ import TabLayout, {Tab} from '@enact/sandstone/TabLayout';
 import { useSignupState } from './SignupState';
 import {useLogin} from './LoginState';
 
+import useLogOut from './LogoutState';
+
 //const {username,password,handleSignupUsernameChange,handleSignupPasswordChange,handleSignup} = useSignupState();
 const Login = ({onSubmit, onClose}) => {
     console.log("rendering login");
@@ -35,6 +37,13 @@ const Login = ({onSubmit, onClose}) => {
 		username,
 		password,
     } = useLogin();
+
+    const {
+        isLoggedOut,
+        setUsername,
+        setPassword,
+        handleLogOut
+    } = useLogOut();
 
     return(
         <Panel >
@@ -91,6 +100,13 @@ const Login = ({onSubmit, onClose}) => {
                     </div>
 
                 </Tab>
+
+                <Tab title = {$L('Log Out')}>
+                    <Button onClick={handleLogOut} >
+                        Log Out
+                    </Button>
+                </Tab>
+
             </TabLayout>
         </Panel>
     )
