@@ -10,7 +10,7 @@ import { useCallback, useContext } from 'react';
 import { PanelContext } from './Context';
 import { useMainState } from './MainState'; // 비디오 데이터를 가져오기 위한 훅
 import SystemMonitor from './systemMonitor';
-import {handleLogOut} from './LogoutState';
+import useLogOut from './LogoutState';
 
 
 const tabsWithIcons = [
@@ -24,6 +24,13 @@ const tabsWithIcons = [
 const Main = (props) => {
 	const { setPanelData } = useContext(PanelContext);
 	const { videoData } = useMainState(); // 비디오 데이터 가져오기
+
+	const {
+        isLoggedOut,
+        setUsername,
+        setPassword,
+        handleLogOut
+    } = useLogOut();
 
 	const handleClick = useCallback(
 		index => () => {
@@ -72,7 +79,7 @@ const Main = (props) => {
 					<SystemMonitor/>
 				</Tab>
 				<Tab title={tabsWithIcons[4].title} icon={tabsWithIcons[4].icon}>
-                    <Button onClick={handleLogOut}>
+                    <Button onClick={handleLogOut} >
                         Log Out
                     </Button>
                 </Tab>
