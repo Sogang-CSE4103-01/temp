@@ -9,11 +9,13 @@ import { scaleToRem } from '@enact/ui/resolution';
 import { useCallback, useContext } from 'react';
 import { PanelContext } from './Context';
 import { useMainState } from './MainState'; // 비디오 데이터를 가져오기 위한 훅
+import SystemMonitor from './systemMonitor';
 
 const tabsWithIcons = [
 	{ title: 'Home', icon: 'home' },
 	{ title: 'Button', icon: 'gear' },
-	{ title: 'Item', icon: 'trash' }
+	{ title: 'Item', icon: 'trash' },
+	{ title : "ProcState", icon : 'home'}
 ];
 
 const Main = (props) => {
@@ -60,6 +62,9 @@ const Main = (props) => {
 				</Tab>
 				<Tab title={tabsWithIcons[2].title} icon={tabsWithIcons[2].icon}>
 					<Item slotBefore={<Icon>playcircle</Icon>}>Single Item</Item>
+				</Tab>
+				<Tab title={tabsWithIcons[3].title} icon={tabsWithIcons[3].icon}>
+					<SystemMonitor/>
 				</Tab>
 			</TabLayout>
 		</Panel>
