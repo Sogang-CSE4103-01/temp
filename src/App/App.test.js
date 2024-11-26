@@ -1,6 +1,7 @@
 jest.mock('../libs/log');
 import '@testing-library/jest-dom';
 import {act} from '@testing-library/react';
+
 import debugLog from '../libs/log';
 import launch from '../libs/testutils';
 

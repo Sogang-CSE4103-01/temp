@@ -49,7 +49,8 @@
 		"prop-types": "^15.8.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-router-dom": "^7.0.1"
+		"react-router-dom": "^7.0.1",
+		"fs" : "^0.0.1-security"
 	},
 	"devDependencies": {
 		"eslint-config-enact-proxy": "^1.0.5",
