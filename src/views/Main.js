@@ -1,3 +1,5 @@
+/* eslint-disable */
+import React, { useCallback, useContext, useState } from 'react';
 import ImageItem from '@enact/sandstone/ImageItem';
 import Scroller from '@enact/sandstone/Scroller';
 import Button from '@enact/sandstone/Button';
@@ -6,11 +8,11 @@ import Icon from '@enact/sandstone/Icon';
 import TabLayout, { Tab } from '@enact/sandstone/TabLayout';
 import { Header, Panel } from '@enact/sandstone/Panels';
 import { scaleToRem } from '@enact/ui/resolution';
-import { useCallback, useContext } from 'react';
-import { PanelContext } from './Context';
 import { useMainState } from './MainState'; // 비디오 데이터를 가져오기 위한 훅
 import SystemMonitor from './systemMonitor';
 import useLogOut from './LogoutState';
+import { PanelContext } from './Context'; // PanelContext 가져오기
+import Popup from '@enact/sandstone/Popup'; // 팝업 컴포넌트 가져오기
 
 
 const tabsWithIcons = [
@@ -22,8 +24,30 @@ const tabsWithIcons = [
 ];
 
 const Main = (props) => {
-	const { setPanelData } = useContext(PanelContext);
-	const { videoData } = useMainState(); // 비디오 데이터 가져오기
+    const { setPanelData } = useContext(PanelContext);
+    const { videoData, loadWatchTime } = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
+
+    const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
+    const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
+    
+	/*
+    const handleClick = useCallback(
+        index => () => {
+            setSelectedVideo(videoData[index]); // 선택된 비디오 설정
+            setIsPopupOpen(true); // 팝업 열기
+        },
+        [videoData]
+    );*/
+
+    const handlePopupConfirm = () => {
+        const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
+        const startTime = 1; // 시청 시간이 있다면 1, 없다면 0
+		console.log("aaa", startTime);
+
+        // 비디오 재생 패널로 이동
+        setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo , startTime } }]);
+        setIsPopupOpen(false); // 팝업 닫기
+    };
 
 	const {
         isLoggedOut,
@@ -41,22 +65,30 @@ const Main = (props) => {
 		[setPanelData, videoData]
 	);
 
-	// 비디오 컴포넌트 렌더링
-	const videoItems = videoData.map(video => (
-		<ImageItem
-			inline
-			key={video.id}
-			label={video.title} // 비디오 제목을 레이블로 사용
-			src={video.thumbnail} // 비디오 썸네일
-			style={{
-				width: scaleToRem(768),
-				height: scaleToRem(588)
-			}}
-			onClick={handleClick(video.id - 1)} // 클릭 시 비디오 재생 패널로 이동
-		>
-			{video.title} {/* 비디오 제목을 표시 */}
-		</ImageItem>
-	));
+    const handlePopupCancel = () => {
+		// 비디오를 처음부터 재생
+		const startTime = 0;
+		console.log("bbb", startTime);
+		setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo, startTime } }]);
+		setIsPopupOpen(false); // 팝업 닫기
+	};
+
+    // 비디오 컴포넌트 렌더링
+    const videoItems = videoData.map(video => (
+        <ImageItem
+            inline
+            key={video.id}
+            label={video.title} // 비디오 제목을 레이블로 사용
+            src={video.thumbnail} // 비디오 썸네일
+            style={{
+                width: scaleToRem(768),
+                height: scaleToRem(588)
+            }}
+            onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+        >
+            {video.title} {/* 비디오 제목을 표시 */}
+        </ImageItem>
+    ));
 
 	return (
 		<Panel {...props}>
@@ -84,6 +116,17 @@ const Main = (props) => {
                     </Button>
                 </Tab>
 			</TabLayout>
+
+			{/* 팝업 추가 */}
+            <Popup open={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+                <h2>이전 시청 기록부터 보시겠습니까?
+                    <h5 style={{ fontSize: '0.8rem', margin: 0 }}>
+                        '아니오'를 선택할 경우 시청기록이 저장되지 않습니다,
+                    </h5>
+                </h2>
+                <Button onClick={handlePopupConfirm}>예</Button>
+                <Button onClick={handlePopupCancel}>아니오</Button>
+            </Popup>
 		</Panel>
 	);
 };
