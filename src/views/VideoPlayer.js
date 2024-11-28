@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useRef, useContext } from 'react';
 import Button from '@enact/sandstone/Button';
 import { MediaControls } from '@enact/sandstone/MediaPlayer';
@@ -8,7 +9,8 @@ import { useMainState } from './MainState'; // MainState에서 가져오기
 import './VideoPlayer.css'; // CSS 파일 추가
 import { useBackHandler } from '../App/AppState'; // useBackHandler 가져오기
 
-const SelectableVideoPlayer = ({ video, startTime}) => {
+const SelectableVideoPlayer = ({ video, startTime = 0 }) => {
+    console.log('data is: ', video, startTime);
     const videoRef = useRef(null);
     const { loadWatchTime, saveWatchTime } = useMainState(); // 시청 시간 관리 함수 가져오기
     const { setPanelData } = useContext(PanelContext); // 패널 데이터 설정 함수 가져오기
@@ -34,17 +36,26 @@ const SelectableVideoPlayer = ({ video, startTime}) => {
     const handleLoadedData = () => {
         const savedTime = loadWatchTime(video.id); // 저장된 시간 불러오기
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
+        
         if (videoNode && savedTime > 0) {
-            console.log('tqtqtqtq:', startTime);
-            
-
-            videoNode.pause(); // 비디오 멈춤
+            console.log('Resuming video from saved time:', savedTime);
             videoNode.currentTime = savedTime; // 저장된 시간으로 이동
-            console.log('Video resumed from:', savedTime); // 로그 추가
-
-            // 비디오 재생 시작
             videoNode.play(); // 비디오 재생 시작
         }
+    };
+
+    // 처음부터 재생하는 핸들러
+    const handlePlayFromStart = () => {
+        const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
+        
+        if (videoNode) {
+            console.log('Starting video from the beginning');
+            videoNode.play(); // 비디오 재생 시작
+        }
+    };
+
+    const setVideo = (video) => {
+        videoRef.current = video; // 비디오 설정
     };
 
     return (
@@ -64,10 +75,10 @@ const SelectableVideoPlayer = ({ video, startTime}) => {
             <div className="video-modal"> {/* 모달 스타일 적용 */}
                 <VideoPlayer
                     loop
-                    ref={videoRef}
+                    ref={setVideo}
                     style={{ width: '100%', height: '100%' }} // 전체 화면 차지
                     onEnded={handleVideoEnd} // 비디오 종료 시 핸들러 추가
-                    onLoadedData={handleLoadedData} // 비디오가 로드된 후 호출
+                    onLoadedData={startTime > 0 ? handleLoadedData : handlePlayFromStart} // startTime에 따라 호출되는 핸들러 설정
                 >
                     <MediaControls>
                         <Button onClick={handleGoToDetails}>Go to Details</Button> {/* 디테일로 이동 버튼 */}
