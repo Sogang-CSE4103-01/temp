@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useCallback, useEffect, useState } from 'react';
 import { sam } from '../libs/services';
 import debugLog from '../libs/log';

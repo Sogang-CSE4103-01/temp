@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useCallback, useContext, useState } from 'react';
 import ImageItem from '@enact/sandstone/ImageItem';
 import Scroller from '@enact/sandstone/Scroller';
@@ -34,18 +35,18 @@ const Main = (props) => {
 
     const handlePopupConfirm = () => {
         const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
-		console.log("aaa", savedTime);
         const startTime = savedTime > 0 ? savedTime : 0; // 시청 시간이 있다면 해당 시간, 없다면 0
+		console.log("aaa", startTime);
 
         // 비디오 재생 패널로 이동
-        setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo, startTime } }]);
+        setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo , startTime } }]);
         setIsPopupOpen(false); // 팝업 닫기
     };
 
     const handlePopupCancel = () => {
 		// 비디오를 처음부터 재생
 		const startTime = 0;
-		console.log("aaa", startTime);
+		console.log("bbb", startTime);
 		setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo, startTime } }]);
 		setIsPopupOpen(false); // 팝업 닫기
 	};
