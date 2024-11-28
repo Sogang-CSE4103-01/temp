@@ -9,16 +9,22 @@ import { useMainState } from './MainState'; // MainState에서 가져오기
 import './VideoPlayer.css'; // CSS 파일 추가
 import { useBackHandler } from '../App/AppState'; // useBackHandler 가져오기
 
-const SelectableVideoPlayer = ({ video, startTime = 0 }) => {
+const SelectableVideoPlayer = ({ video, startTime}) => {
     console.log('data is: ', video, startTime);
     const videoRef = useRef(null);
     const { loadWatchTime, saveWatchTime } = useMainState(); // 시청 시간 관리 함수 가져오기
     const { setPanelData } = useContext(PanelContext); // 패널 데이터 설정 함수 가져오기
-
+    
     // 기존 useBackHandler를 사용하여 백 핸들러 정의
     const handleBack = useBackHandler();
 
     const handleGoToDetails = () => {
+        const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
+        if (videoNode) {
+            const currentTime = videoNode.currentTime; // 현재 시간 가져오기
+            saveWatchTime(video.id, currentTime); // 현재 시간을 저장
+            console.log('Current time saved before going back:', currentTime);
+        }
         setPanelData(prev => [...prev, { name: 'detail', data: { index: video.id } }]); // 디테일 패널로 이동
     };
 

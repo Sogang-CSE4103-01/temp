@@ -37,8 +37,8 @@ export const useMainState = () => {
 				id: 3,
 				title: "세 번째 비디오",
 				thumbnail: video3,
-				src: 'https://example.com/video3.mp4',
-				watchTime: 0 // 시청 시간을 추가
+				src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+				watchTime: loadWatchTime(3) // 시청 시간을 추가
 				},
 				{
 				id: 4,

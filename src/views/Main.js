@@ -24,6 +24,8 @@ const Main = (props) => {
 
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
     const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
+    
+
 
     const handleClick = useCallback(
         index => () => {
@@ -35,7 +37,7 @@ const Main = (props) => {
 
     const handlePopupConfirm = () => {
         const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
-        const startTime = savedTime > 0 ? savedTime : 0; // 시청 시간이 있다면 해당 시간, 없다면 0
+        const startTime = 1; // 시청 시간이 있다면 1, 없다면 0
 		console.log("aaa", startTime);
 
         // 비디오 재생 패널로 이동
