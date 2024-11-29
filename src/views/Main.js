@@ -92,7 +92,11 @@ const Main = (props) => {
             
             {/* 팝업 추가 */}
             <Popup open={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
-                <h2>이전 시청 기록부터 보시겠습니까?</h2>
+                <h2>이전 시청 기록부터 보시겠습니까?
+                    <h5 style={{ fontSize: '0.8rem', margin: 0 }}>
+                        '아니오'를 선택할 경우 시청기록이 저장되지 않습니다,
+                    </h5>
+                </h2>
                 <Button onClick={handlePopupConfirm}>예</Button>
                 <Button onClick={handlePopupCancel}>아니오</Button>
             </Popup>
