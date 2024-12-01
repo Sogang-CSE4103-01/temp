@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, {useState, useEffect} from "react";
 import ProgressBar from '@enact/sandstone/ProgressBar';
 //import { getSystemResources } from "./systemUtils";
@@ -13,7 +14,7 @@ const SystemMonitor = () => {
         const fetchData = async () => {
             try{
                 //const systemData = await getSystemResources();
-                const systemData = await getLunaSystemResources();
+                
 
                 if(systemData){
                     setCPUUsage(systemData.cpuUsage);
