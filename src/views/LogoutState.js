@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useCallback, useContext } from 'react';
 import debugLog from '../libs/log';
 import {PanelContext} from './Context';

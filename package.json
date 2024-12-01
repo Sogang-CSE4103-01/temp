@@ -39,18 +39,18 @@
 		"^uuid$": "uuid"
 	},
 	"dependencies": {
-		"@enact/core": "^4.7.0",
+		"@enact/core": "^4.9.4",
 		"@enact/i18n": "^4.7.0",
 		"@enact/sandstone": "^2.9.5",
 		"@enact/spotlight": "^4.7.0",
 		"@enact/ui": "^4.7.0",
-		"@enact/webos": "^4.7.0",
+		"@enact/webos": "^4.9.4",
+		"fs": "^0.0.1-security",
 		"ilib": "^14.17.0",
 		"prop-types": "^15.8.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-router-dom": "^7.0.1",
-		"fs" : "^0.0.1-security"
+		"react-router-dom": "^7.0.1"
 	},
 	"devDependencies": {
 		"eslint-config-enact-proxy": "^1.0.5",

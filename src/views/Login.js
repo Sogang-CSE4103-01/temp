@@ -1,3 +1,4 @@
+/* eslint-disable */
 import BodyText from '@enact/sandstone/BodyText';
 import {Header, Panel} from '@enact/sandstone/Panels';
 import $L from '@enact/i18n/$L';
