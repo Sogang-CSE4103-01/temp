@@ -613,8 +613,16 @@ export const useMainState = () => {
     const loadData = useCallback(async () => {
         setLoading(true); // 로딩 시작
         try {
-            const newVideos = await generateVideoData(page *10 - 9 , page * 10) // Fetch 10 videos based on the current page
-            setVideoData((prevData) => [...prevData, ...newVideos]); // Append new videos to the existing ones
+            if(totalVideos - (page * 10 -9) >= 10){
+                const newVideos = await generateVideoData(page *10 - 9 , page * 10) // Fetch 10 videos based on the current page
+                setVideoData((prevData) => [...prevData, ...newVideos]); // Append new videos to the existing ones
+                console.log(page * 10);
+            }
+            else{
+                const newVideos = await generateVideoData(page *10 - 9 , (page * 10 - 9)+(totalVideos - (page * 10 - 9))) // Fetch 10 videos based on the current page
+                setVideoData((prevData) => [...prevData, ...newVideos]); // Append new videos to the existing ones
+                console.log((page * 10 - 9)+(totalVideos - (page * 10 - 9)))
+            }
         } catch (error) {
             console.error('Error loading video data:', error);
         } finally {
