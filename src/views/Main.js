@@ -25,7 +25,7 @@ const tabsWithIcons = [
 
 const Main = (props) => {
     const { setPanelData } = useContext(PanelContext);
-    const { videoData, loadWatchTime } = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
+    const { videoData, loadWatchTime, loadMore, loading } = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
 
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
     const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
@@ -97,8 +97,8 @@ const Main = (props) => {
 			<TabLayout>
 				<Tab title={tabsWithIcons[0].title} icon={tabsWithIcons[0].icon}>
 					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}
-                    <Button>
-                        More
+                    <Button onClick={loadMore} disabled={loading}>
+                        {loading ? 'Loading...' : 'More'}
                     </Button>
                     </Scroller>
 				</Tab>
