@@ -543,9 +543,12 @@ export const useMainState = () => {
     };
 }; */
 
+/*
 import { useCallback, useEffect, useState } from 'react';
 import { sam } from '../libs/services';
 import debugLog from '../libs/log';
+
+var flag = 0;
 
 // 로컬 이미지 임포트 (기본 썸네일로 사용)
 import defaultThumbnail from '../assets/3.jpg';
@@ -613,22 +616,32 @@ export const useMainState = () => {
     const loadData = useCallback(async () => {
         setLoading(true); // 로딩 시작
         try {
-            if(totalVideos - (page * 10 -9) >= 10){
-                const newVideos = await generateVideoData(page *10 - 9 , page * 10) // Fetch 10 videos based on the current page
+
+            const startIndex = (page - 1) * 10 + 1;
+            const remainingVideos = totalVideos - startIndex;
+            const countToFetch = Math.min(10, remainingVideos);
+
+            //if(totalVideos - (page * 10 -9) >= 10){
+            if(flag == 0 || countToFetch > 0){
+                flag = 1;
+                const endIndex = startIndex + countToFetch - 1;
+                //const newVideos = await generateVideoData(page *10 - 9 , page * 10) // Fetch 10 videos based on the current page
+                const newVideos = await generateVideoData(startIndex , endIndex)
                 setVideoData((prevData) => [...prevData, ...newVideos]); // Append new videos to the existing ones
-                console.log(page * 10);
+                console.log('load videos : ', startIndex);
             }
             else{
-                const newVideos = await generateVideoData(page *10 - 9 , (page * 10 - 9)+(totalVideos - (page * 10 - 9))) // Fetch 10 videos based on the current page
-                setVideoData((prevData) => [...prevData, ...newVideos]); // Append new videos to the existing ones
-                console.log((page * 10 - 9)+(totalVideos - (page * 10 - 9)))
+                //const newVideos = await generateVideoData(page *10 - 9 , (page * 10 - 9)+(totalVideos - (page * 10 - 9))) // Fetch 10 videos based on the current page
+                //setVideoData((prevData) => [...prevData, ...newVideos]); // Append new videos to the existing ones
+                //console.log((page * 10 - 9)+(totalVideos - (page * 10 - 9)));
+                console.log('no more vids');
             }
         } catch (error) {
             console.error('Error loading video data:', error);
         } finally {
             setLoading(false); // 로딩 완료
         }
-    }, [page]);
+    }, [page, totalVideos, videoData.length, generateVideoData]);
 
     useEffect(() => {
         fetchTotalVideos();
@@ -698,6 +711,191 @@ export const useMainState = () => {
         loading, // 로딩 상태 반환
         totalVideos,
     };
+}; */
+
+import { useCallback, useEffect, useState } from 'react';
+import { sam } from '../libs/services';
+import debugLog from '../libs/log';
+
+// 로컬 이미지 임포트 (기본 썸네일로 사용)
+import defaultThumbnail from '../assets/3.jpg';
+
+var flag = 0;
+
+export const useMainState = () => {
+    const [isPopupOpen, openPopup] = useState(false);
+    const [videoData, setVideoData] = useState([]); // 초기값을 빈 배열로 설정
+    const [loading, setLoading] = useState(false); // 로딩 상태 추가
+    const [page, setPage] = useState(1); // 현재 페이지 번호
+    const [totalVideos, setTotalVideos] = useState(null);
+
+    // 로컬스토리지에서 저장된 비디오 데이터 로드
+    useEffect(() => {
+        const savedVideoData = localStorage.getItem('videoData');
+        if (savedVideoData) {
+            setVideoData(JSON.parse(savedVideoData)); // 로컬스토리지에서 데이터 불러오기
+        }
+    }, []);
+
+    // 비디오 데이터를 로컬스토리지에 저장
+    useEffect(() => {
+        if (videoData.length > 0) {
+            localStorage.setItem('videoData', JSON.stringify(videoData)); // 비디오 데이터 로컬스토리지에 저장
+        }
+    }, [videoData]);
+
+    const fetchTotalVideos = useCallback(async () => {
+        try {
+            const response = await fetch('/api/num_of_videos');
+            if (response.ok) {
+                const count = await response.json();
+                console.log(count);
+                setTotalVideos(count); // 총 비디오 수 저장
+            } else {
+                console.error('Failed to fetch total video count');
+            }
+        } catch (error) {
+            console.error('Error fetching total video count:', error);
+        }
+    }, []);
+
+    // 비디오 데이터를 생성하는 함수 (고정 데이터 + 비동기 썸네일/타이틀 로드)
+    const generateVideoData = async (startIndex, endIndex) => {
+        const videoIndices = Array.from({ length: endIndex - startIndex + 1 }, (_, i) => startIndex + i);
+
+        const videos = await Promise.all(
+            videoIndices.map(async (index) => {
+                const defaultVideo = {
+                    id: index,
+                    title: `비디오 ${index + 1}`,
+                    thumbnail: defaultThumbnail,
+                    src: `http://media.w3.org/2010/05/video/movie_300.mp4`,
+                    watchTime: loadWatchTime(index),
+                };
+
+                try {
+                    const titleResponse = await fetch(`/api/video_title/${index}`);
+                    const title = titleResponse.ok ? await titleResponse.text() : defaultVideo.title;
+
+                    const thumbnailResponse = await fetch(`/api/thumbnail/${index}.jpg`);
+                    const thumbnail = thumbnailResponse.ok ? `/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
+
+                    return {
+                        ...defaultVideo,
+                        title,
+                        thumbnail,
+                        src: `/api/video/${index}.mp4`,
+                    };
+                } catch (error) {
+                    console.error(`Error loading data for video ${index}:`, error);
+                    return defaultVideo; // 오류 발생 시 기본 데이터 유지
+                }
+            })
+        );
+
+        return videos;
+    };
+
+    // 데이터 로드
+    const loadData = useCallback(async () => {
+        setLoading(true); // 로딩 시작
+        try {
+            if (flag == 0 || totalVideos - (page * 10 - 9) >= 10) {
+                flag = 1;
+                const newVideos = await generateVideoData(page * 10 - 9, page * 10); // Fetch 10 videos based on the current page
+                setVideoData((prevData) => {
+                    // 기존 비디오 데이터와 새로 로드한 비디오 데이터를 합칠 때 중복 제거
+                    const mergedData = [...prevData, ...newVideos];
+                    const uniqueData = Array.from(new Set(mergedData.map((video) => video.id)))
+                        .map((id) => mergedData.find((video) => video.id === id));
+                    return uniqueData; // 중복 제거된 데이터 반환
+                });
+                console.log(page * 10);
+            } else {
+                const newVideos = await generateVideoData(
+                    page * 10 - 9,
+                    (page * 10 - 9) + (totalVideos - (page * 10 - 9))
+                ); // Fetch 10 videos based on the current page
+                setVideoData((prevData) => {
+                    // 기존 비디오 데이터와 새로 로드한 비디오 데이터를 합칠 때 중복 제거
+                    const mergedData = [...prevData, ...newVideos];
+                    const uniqueData = Array.from(new Set(mergedData.map((video) => video.id)))
+                        .map((id) => mergedData.find((video) => video.id === id));
+                    return uniqueData; // 중복 제거된 데이터 반환
+                });
+                console.log((page * 10 - 9) + (totalVideos - (page * 10 - 9)));
+            }
+        } catch (error) {
+            console.error('Error loading video data:', error);
+        } finally {
+            setLoading(false); // 로딩 완료
+        }
+    }, [page, totalVideos]);
+
+    useEffect(() => {
+        fetchTotalVideos();
+        loadData(); // Load the first set of videos on mount
+    }, [fetchTotalVideos, loadData]);
+
+    const loadMore = () => {
+        if (videoData.length < totalVideos) {
+            setPage((prevPage) => prevPage + 1); // Increment the page to load the next set of videos
+        }
+    };
+
+    // 팝업 관련 핸들러
+    const handleLaunchApp = useCallback(async () => {
+        const result = await sam({
+            method: 'launch',
+            parameters: { id: 'com.webos.app.self-diagnosis' },
+        });
+        debugLog('SAM', result);
+        openPopup(false);
+    }, []);
+
+    const handlePopupOpen = useCallback(() => {
+        openPopup(true);
+    }, []);
+
+    const handlePopupClose = useCallback(() => {
+        openPopup(false);
+    }, []);
+
+    // 시청 시간 저장
+    const saveWatchTime = (videoId, time) => {
+        setVideoData((prevData) =>
+            prevData.map((video) =>
+                video.id === videoId ? { ...video, watchTime: time } : video
+            )
+        );
+
+        // localStorage에 저장
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(`watchTime_${videoId}`, time);
+        }
+
+        console.log(`Watch time for video ${videoId} saved: ${time}`);
+    };
+
+    // 시청 시간 로드
+    const loadWatchTime = (videoId) => {
+        if (typeof window !== 'undefined') {
+            const savedTime = localStorage.getItem(`watchTime_${videoId}`);
+            return savedTime ? parseInt(savedTime, 10) : 0; // 저장된 시간이 없으면 0 반환
+        }
+        return 0;
+    };
+
+    return {
+        isPopupOpen,
+        handlePopupOpen,
+        handlePopupClose,
+        handleLaunchApp,
+        videoData,
+        loadMore,
+        saveWatchTime,
+        loadWatchTime,
+        loading, // 로딩 상태 반환
+        totalVideos,
+    };
 };
-
-

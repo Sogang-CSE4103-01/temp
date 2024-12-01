@@ -10,6 +10,7 @@ import { PanelContext } from '../views/Context';
 import SettingPanel from '../views/SettingPanel';
 import Login from '../views/Login';
 import VideoPlayPanel from '../views/VideoPlayer'; // 비디오 재생 패널 임포트
+//import resetPage from '../views/MainState';
 
 // 실습 : 동적 panel 이동 기능 구현하기
 

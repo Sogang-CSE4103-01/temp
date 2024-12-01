@@ -25,7 +25,7 @@ const tabsWithIcons = [
 
 const Main = (props) => {
     const { setPanelData } = useContext(PanelContext);
-    const { videoData, loadWatchTime, loadMore, loading } = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
+    const { videoData, loadWatchTime, loadMore, loading} = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
 
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
     const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
@@ -43,6 +43,9 @@ const Main = (props) => {
         const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
         const startTime = 1; // 시청 시간이 있다면 1, 없다면 0
 		console.log("aaa", startTime);
+
+        //resetPage();
+        //console.log("pop up", Page);
 
         // 비디오 재생 패널로 이동
         setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo , startTime } }]);
