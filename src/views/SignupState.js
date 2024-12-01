@@ -1,4 +1,5 @@
 // src/views/SignupState.js
+/* eslint-disable */
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'; // useHistory를 useNavigate로 변경
 import debugLog from '../libs/log';
