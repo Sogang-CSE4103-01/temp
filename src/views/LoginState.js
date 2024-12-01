@@ -50,12 +50,13 @@ export const useLogin = () => {
 		debugLog('Attempting login', { username, password });
 		try {
 			//const response = await fetch(`https://cors-anywhere-herokuapp.com/https://connected-backend-yir6.onrender.com/api/login`, {
-			const response = await fetch('https://connected-backend-yir6.onrender.com/api/login?username=${username}&password=${password}', {
+			//const response = await fetch('https://connected-backend-yir6.onrender.com/api/login?username=${username}&password=${password}', {
+			const response = await fetch(`/api/login?username=${username}&password=${password}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body : JSON.stringify({username, password}),
+				//body : JSON.stringify({username, password}),
 				//credentials: 'include',
 			});
 			if (!response.ok) {
@@ -79,7 +80,7 @@ export const useLogin = () => {
 			handleLoginClose();
             setPanelData([{name : 'main', data:{}}]);
 		}
-	}, [username, password, isLoginSuccess]);
+	}, [username, password, isLoginSuccess, handleLoginClose]);
 
 	return {
 		isLoginOpen,

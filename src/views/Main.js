@@ -30,14 +30,14 @@ const Main = (props) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
     const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
     
-	/*
+	
     const handleClick = useCallback(
         index => () => {
             setSelectedVideo(videoData[index]); // 선택된 비디오 설정
             setIsPopupOpen(true); // 팝업 열기
         },
         [videoData]
-    );*/
+    );
 
     const handlePopupConfirm = () => {
         const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
@@ -56,6 +56,7 @@ const Main = (props) => {
         handleLogOut
     } = useLogOut();
 
+	/*
 	const handleClick = useCallback(
 		index => () => {
 			// 비디오 재생 패널로 이동
@@ -63,7 +64,7 @@ const Main = (props) => {
 			setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: videoData[index] } }]);
 		},
 		[setPanelData, videoData]
-	);
+	);*/
 
     const handlePopupCancel = () => {
 		// 비디오를 처음부터 재생
