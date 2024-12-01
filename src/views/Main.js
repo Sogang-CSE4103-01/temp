@@ -96,7 +96,11 @@ const Main = (props) => {
 			<Header title="Sandstone TabLayout" subtitle="Basic TabLayout" />
 			<TabLayout>
 				<Tab title={tabsWithIcons[0].title} icon={tabsWithIcons[0].icon}>
-					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
+					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}
+                    <Button>
+                        More
+                    </Button>
+                    </Scroller>
 				</Tab>
 				<Tab title={tabsWithIcons[1].title} icon={tabsWithIcons[1].icon}>
 					<Button icon="demosync">Button 1</Button>

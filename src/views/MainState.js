@@ -262,6 +262,8 @@ export const useMainState = () => {
 }; */
 
 /* eslint-disable */
+
+/*
 import { useCallback, useEffect, useState } from 'react';
 import { sam } from '../libs/services';
 import debugLog from '../libs/log';
@@ -273,10 +275,11 @@ export const useMainState = () => {
     const [isPopupOpen, openPopup] = useState(false);
     const [videoData, setVideoData] = useState([]); // 초기값을 빈 배열로 설정
     const [loading, setLoading] = useState(true); // 로딩 상태 추가
+    const [index, setIndex] = useState(0);
 
     // 비디오 데이터를 생성하는 함수 (고정 데이터 + 비동기 썸네일/타이틀 로드)
     const generateVideoData = async () => {
-        const initialVideoData = Array.from({ length: 20 }, (_, index) => ({
+        const initialVideoData = Array.from({ length: 10 }, (_, index) => ({
             id: index + 1,
             title: `비디오 ${index + 1}`, // 기본 타이틀
             thumbnail: defaultThumbnail, // 기본 썸네일
@@ -288,20 +291,24 @@ export const useMainState = () => {
             initialVideoData.map(async (video) => {
                 try {
                     // 비디오 제목 동적 로드
-                    const titleResponse = await fetch(`http://localhost:8080/api/video_title/${video.id}`);
+                    //const titleResponse = await fetch(`http://localhost:8080/api/video_title/${video.id}`);
+					const titleResponse = await fetch(`/api/video_title/${video.id}`);
                     const title = titleResponse.ok ? await titleResponse.text() : video.title;
 
                     // 썸네일 동적 로드
-                    const thumbnailResponse = await fetch(`http://localhost:8080/api/thumbnail/${video.id}.jpg`);
+                    //const thumbnailResponse = await fetch(`http://localhost:8080/api/thumbnail/${video.id}.jpg`);
+					const thumbnailResponse = await fetch(`/api/thumbnail/${video.id}.jpg`);
                     const thumbnail = thumbnailResponse.ok
-                        ? `http://localhost:8080/api/thumbnail/${video.id}.jpg`
+                        //? `http://localhost:8080/api/thumbnail/${video.id}.jpg`
+						? `/api/thumbnail/${video.id}.jpg`
                         : video.thumbnail;
 
                     return {
                         ...video,
                         title,
                         thumbnail,
-                        src: `http://localhost:8080/api/video/${video.id}.mp4`, // 비디오 동적 URL
+                        //src: `http://localhost:8080/api/video/${video.id}.mp4`, // 비디오 동적 URL
+						src: `/api/video/${video.id}.mp4`, // 비디오 동적 URL
                     };
                 } catch (error) {
                     console.error(`Error loading data for video ${video.id}:`, error);
@@ -384,5 +391,156 @@ export const useMainState = () => {
         loadWatchTime,
         loading, // 로딩 상태 반환
     };
+};  */
+
+
+import { useCallback, useEffect, useState } from 'react';
+import { sam } from '../libs/services';
+import debugLog from '../libs/log';
+
+// 로컬 이미지 임포트 (기본 썸네일로 사용)
+import defaultThumbnail from '../assets/3.jpg';
+
+export const useMainState = () => {
+    const [isPopupOpen, openPopup] = useState(false);
+    const [videoData, setVideoData] = useState([]); // 초기값을 빈 배열로 설정
+    const [loading, setLoading] = useState(false); // 로딩 상태 추가
+    const [page, setPage] = useState(1); // 현재 페이지 번호
+    const [totalVideos, setTotalVideos] = useState(null);
+
+    const fetchTotalVideos = useCallback(async () => {
+        try {
+            const response = await fetch('/api/num_of_videos');
+            if (response.ok) {
+                const count = await response.json();
+                console.log(count);
+                setTotalVideos(count); // 총 비디오 수 저장
+            } else {
+                console.error('Failed to fetch total video count');
+            }
+        } catch (error) {
+            console.error('Error fetching total video count:', error);
+        }
+    }, []);
+
+    // 비디오 데이터를 생성하는 함수 (고정 데이터 + 비동기 썸네일/타이틀 로드)
+    const generateVideoData = async (startIndex, endIndex) => {
+        const videoIndices = Array.from({ length: endIndex - startIndex + 1 }, (_, i) => startIndex + i);
+
+        const videos = await Promise.all(
+            videoIndices.map(async (index) => {
+                const defaultVideo = {
+                    id: index,
+                    title: `비디오 ${index + 1}`,
+                    thumbnail: defaultThumbnail,
+                    src: `http://media.w3.org/2010/05/video/movie_300.mp4`,
+                    watchTime: loadWatchTime(index),
+                };
+
+                try {
+                    const titleResponse = await fetch(`/api/video_title/${index}`);
+                    const title = titleResponse.ok ? await titleResponse.text() : defaultVideo.title;
+
+                    const thumbnailResponse = await fetch(`/api/thumbnail/${index}.jpg`);
+                    const thumbnail = thumbnailResponse.ok ? `/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
+
+                    return {
+                        ...defaultVideo,
+                        title,
+                        thumbnail,
+                        src: `/api/video/${index}.mp4`,
+                    };
+                } catch (error) {
+                    console.error(`Error loading data for video ${index}:`, error);
+                    return defaultVideo; // 오류 발생 시 기본 데이터 유지
+                }
+            })
+        );
+
+        return videos;
+    };
+
+    // 데이터 로드
+    const loadData = useCallback(async () => {
+        setLoading(true); // 로딩 시작
+        try {
+            const newVideos = await generateVideoData(page *10 - 9 , page * 10) // Fetch 10 videos based on the current page
+            setVideoData((prevData) => [...prevData, ...newVideos]); // Append new videos to the existing ones
+        } catch (error) {
+            console.error('Error loading video data:', error);
+        } finally {
+            setLoading(false); // 로딩 완료
+        }
+    }, [page]);
+
+    useEffect(() => {
+        fetchTotalVideos();
+        loadData(); // Load the first set of videos on mount
+        
+    }, [fetchTotalVideos, loadData]);
+
+    const loadMore = () => {
+        if (videoData.length < totalVideos) {
+            setPage((prevPage) => prevPage + 1); // Increment the page to load the next set of videos
+        }
+        //setPage((prevPage) => prevPage + 1); // Increment the page to load the next set of videos
+    };
+
+    // 팝업 관련 핸들러
+    const handleLaunchApp = useCallback(async () => {
+        const result = await sam({
+            method: 'launch',
+            parameters: { id: 'com.webos.app.self-diagnosis' },
+        });
+        debugLog('SAM', result);
+        openPopup(false);
+    }, []);
+
+    const handlePopupOpen = useCallback(() => {
+        openPopup(true);
+    }, []);
+
+    const handlePopupClose = useCallback(() => {
+        openPopup(false);
+    }, []);
+
+    // 시청 시간 저장
+    const saveWatchTime = (videoId, time) => {
+        setVideoData((prevData) =>
+            prevData.map((video) =>
+                video.id === videoId ? { ...video, watchTime: time } : video
+            )
+        );
+
+        // localStorage에 저장
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(`watchTime_${videoId}`, time);
+        }
+
+        console.log(`Watch time for video ${videoId} saved: ${time}`);
+    };
+
+    // 시청 시간 로드
+    const loadWatchTime = (videoId) => {
+        if (typeof window !== 'undefined') {
+            const savedTime = localStorage.getItem(`watchTime_${videoId}`);
+            return savedTime ? parseInt(savedTime, 10) : 0; // 저장된 시간이 없으면 0 반환
+        }
+        return 0;
+    };
+
+    return {
+        isPopupOpen,
+        handlePopupOpen,
+        handlePopupClose,
+        handleLaunchApp,
+        videoData,
+        loadMore,
+        saveWatchTime,
+        loadWatchTime,
+        loading, // 로딩 상태 반환
+        totalVideos,
+    };
 };
+
 

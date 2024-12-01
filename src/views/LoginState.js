@@ -71,6 +71,7 @@ export const useLogin = () => {
 			debugLog('Login successful', data);
 			setLoginSuccess(true);
 			handleLoginClose();
+			setPanelData([{name : 'main', data:{}}]);
 		} catch (error) {
 			//const data = await response.json();
 			debugLog('Login failed 222', error.message);
@@ -79,7 +80,7 @@ export const useLogin = () => {
 			//isLoginSuccess = true;
 			console.log(isLoginSuccess);
 			handleLoginClose();
-            setPanelData([{name : 'main', data:{}}]);
+            //setPanelData([{name : 'main', data:{}}]);
 		}
 	}, [username, password, isLoginSuccess, handleLoginClose]);
 
