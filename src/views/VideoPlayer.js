@@ -1,5 +1,5 @@
 
-import React, { useRef, useContext, useState } from 'react';
+import React, { useRef, useContext, useState, useEffect } from 'react';
 import Button from '@enact/sandstone/Button';
 import Scroller from '@enact/sandstone/Scroller';
 import { MediaControls } from '@enact/sandstone/MediaPlayer';
@@ -12,6 +12,9 @@ import { useBackHandler } from '../App/AppState'; // useBackHandler 가져오기
 import ImageItem from '@enact/sandstone/ImageItem'; // 썸네일 이미지 아이템 추가
 import Popup from '@enact/sandstone/Popup'; // Popup 컴포넌트 가져오기
 import Input, { InputField } from '@enact/sandstone/Input'; // InputField 가져오기
+import {username} from './LoginState';
+
+const flag = 0;
 
 const SelectableVideoPlayer = ({ video, startTime }) => {
     const videoRef = useRef(null);
@@ -22,7 +25,17 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     const [isBotOpen, setIsBotOpen] = useState(false); // 팝업 상태 관리
     const [comment, setComment] = useState(''); // 댓글 상태 관리
     const [messages, setMessages] = useState([]); // 챗봇 메시지 상태 관리
+
+    const [comments, setComments] = useState([]); // 댓글 목록 상태
+    const [page, setPage] = useState(1); // 현재 페이지 번호
+    const [myComments, setMyComments] = useState([]);
+
     
+    useEffect(() => {
+        console.log("new comments : ", comments);
+        console.log("my comments : ", myComments);
+    }, [comments, myComments]);
+
 
     const handleGoToDetails = () => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
@@ -45,11 +58,14 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     const handleLoadedData = () => {
         const savedTime = loadWatchTime(video.id); // 저장된 시간 불러오기
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
+        const videoId = video.id;
         
         if (videoNode && savedTime > 0) {
             videoNode.currentTime = savedTime; // 저장된 시간으로 이동
             videoNode.play(); // 비디오 재생 시작
         }
+
+        console.log("Video ID : ", videoId);
     };
 
     const setVideo = (video) => {
@@ -105,6 +121,52 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     
         setComment(''); // 댓글 입력 초기화
     };
+
+    const fetchComments = async () => {
+        //const videoNode = videoRef.current.getVideoNode();
+        const videoId = video.id;
+        try {
+            const url = `http://localhost:8080/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
+            const response = await fetch(url, {method:'GET'});
+            if (response.ok) {
+                const data = await response.json();
+                setComments(prev => [...prev, ...data]); // 기존 댓글에 새 댓글 추가
+            } else {
+                console.error("댓글 불러오기 실패:", response.status);
+            }
+        } catch (error) {
+            console.error("댓글 불러오기 오류:", error);
+        }
+    };
+    
+    const postComment = async (content) => {
+        const videoId = video.id;
+        try {
+            const url = `http://localhost:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                //headers: {
+                //    'Content-Type': 'application/json',
+                //},
+                //}),
+            });
+            if (response.ok) {
+                const newComment = await response.json();
+                //setComments(prev => [newComment, ...prev]); // 새 댓글을 기존 목록의 맨 앞에 추가
+                setComments(prev => [content, ...prev]);
+                setMyComments(prev => [...prev, {...content, isLocal : true}]);
+                console.log(comments.length);
+            } else {
+                console.error("댓글 전송 실패:", response.status);
+                setComments(prev => [content, ...prev]);
+                setMyComments(prev => [...prev, {...content, isLocal : true}]);
+                console.log(comments.length);
+            }
+        } catch (error) {
+            console.error("댓글 전송 오류:", error);
+        }
+    };
+    
     
 
     return (
@@ -132,7 +194,10 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     <MediaControls>
                         <Button onClick={handleGoToDetails}>Go to Details</Button> {/* 디테일로 이동 버튼 */}
                         
-                        <Button onClick={() => setIsPopupOpen(true)}>댓글</Button> {/* 팝업 버튼 추가 */}
+                        <Button onClick={() => { 
+                            setIsPopupOpen(true);
+                            fetchComments();
+                            }}>댓글</Button> {/* 팝업 버튼 추가 */}
                         <Button onClick={() => setIsBotOpen(true)}>챗봇</Button> 
                         <Button onClick={() => {
                             const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
@@ -172,9 +237,16 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             <Popup
                 open={isPopupOpen}
                 onClose={() => setIsPopupOpen(false)}
-                style={{ maxWidth: '100%', maxHeight: '300px' }} // 팝업의 최대 크기 제한
+                style={{ maxWidth: '100%', maxHeight: '500px' }} // 팝업의 최대 크기 제한
             >
-                <Scroller style={{ maxHeight: '200px' }}> {/* 스크롤러 추가 */}
+                <Scroller style={{ maxHeight: '300px' }}>
+                    {comments.length > 0 ? comments.map((comment, index) => (
+                        <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>comment : {comment} / User ID: {comment.userId}</div>
+                            <div style={{ fontSize: '0.8rem' }}>{comment.content}</div>
+                        </div>
+                    )) : <div>댓글이 없습니다.</div>}
+                    {/*}
                     {Array.from({ length: 15 }).map((_, index) => (
                         <h5 style={{ fontSize: '0.8rem', margin: 0 }} key={index}>
                             아 진짜 하기 싫다
@@ -182,7 +254,14 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                                 @임대규 15:31
                             </h5>
                         </h5>
-                    ))}
+                    ))} */}
+                    {/*}
+                    {myComments.length > 0 ? myComments.map((comment, index) => (
+                        <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>comment : {comment} / User ID: {comment.userId}</div>
+                            <div style={{ fontSize: '0.8rem' }}>{comment.content}</div>
+                        </div>
+                    )) : <div>_</div>} */}
                 </Scroller>
                 <InputField
                     placeholder="댓글을 입력하세요..."
@@ -192,8 +271,14 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 />
                 <Button onClick={() => {
                     console.log("댓글 남기기:", comment);
+                    postComment(comment);
                     setComment(''); // 댓글 입력 초기화
                 }}>댓글 남기기</Button>
+
+                <Button onClick={() => {
+                    setPage(prev => prev + 1);
+                    fetchComments();
+                }}>more</Button>
             </Popup>
 
             <Popup
