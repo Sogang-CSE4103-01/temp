@@ -1,4 +1,4 @@
-/*
+
 import React, { useRef, useContext, useState } from 'react';
 import Button from '@enact/sandstone/Button';
 import Scroller from '@enact/sandstone/Scroller';
@@ -10,20 +10,19 @@ import { useMainState } from './MainState'; // MainState에서 가져오기
 import './VideoPlayer.css'; // CSS 파일 추가
 import { useBackHandler } from '../App/AppState'; // useBackHandler 가져오기
 import ImageItem from '@enact/sandstone/ImageItem'; // 썸네일 이미지 아이템 추가
+import Popup from '@enact/sandstone/Popup'; // Popup 컴포넌트 가져오기
+import Input, { InputField } from '@enact/sandstone/Input'; // InputField 가져오기
 
 const SelectableVideoPlayer = ({ video, startTime }) => {
     const videoRef = useRef(null);
     const { loadWatchTime, saveWatchTime, videoData } = useMainState(); // 비디오 데이터 가져오기
     const { setPanelData } = useContext(PanelContext); // 패널 데이터 설정 함수 가져오기
     const handleBack = useBackHandler();
-    const [isCommentsOpen, setCommentsOpen] = useState(false); // Comment overlay state
-    const [comments, setComments] = useState([
-        "Great video!",
-        "I learned so much from this.",
-        "Awesome content, keep it up!",
-        "Can you make a part 2?",
-        "Loved the visuals in this video!"
-    ]);
+    const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
+    const [isBotOpen, setIsBotOpen] = useState(false); // 팝업 상태 관리
+    const [comment, setComment] = useState(''); // 댓글 상태 관리
+    const [messages, setMessages] = useState([]); // 챗봇 메시지 상태 관리
+    
 
     const handleGoToDetails = () => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
@@ -53,20 +52,8 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         }
     };
 
-    const handlePlayFromStart = () => {
-        const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
-        
-        if (videoNode) {
-            videoNode.play(); // 비디오 재생 시작
-        }
-    };
-
     const setVideo = (video) => {
         videoRef.current = video; // 비디오 설정
-    };
-
-    const toggleComments = () => {
-        setCommentsOpen(!isCommentsOpen); // Toggle comment overlay
     };
 
     // 비디오 썸네일 클릭 핸들러
@@ -80,6 +67,45 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         // 클릭된 썸네일 비디오로 이동
         setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: thumbnailVideo } }]); // 해당 비디오 재생 패널로 이동
     };
+
+    const handleSendMessage = async () => {
+        if (comment.trim() === '') return; // 빈 메시지 전송 방지
+    
+        setMessages(prev => [...prev, { sender: 'user', text: comment }]);
+    
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer `, // 여기에 실제 API 키를 입력하세요
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o', // 사용할 모델
+                    messages: [ 
+                        { role: 'system', content: "You are a helpful assistant." },
+                        { role: 'user', content: comment },
+                    ],
+                }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                const botMessage = data.choices[0].message.content; // 챗봇의 응답
+                setMessages(prev => [...prev, { sender: 'bot', text: botMessage }]);
+            } else {
+                console.error('Error from OpenAI API:', data);
+                setMessages(prev => [...prev, { sender: 'bot', text: '챗봇 응답을 받을 수 없습니다.' }]);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setMessages(prev => [...prev, { sender: 'bot', text: '네트워크 오류가 발생했습니다.' }]);
+        }
+    
+        setComment(''); // 댓글 입력 초기화
+    };
+    
 
     return (
         <Panel>
@@ -100,18 +126,14 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     ref={setVideo}
                     style={{ width: '100%', height: '100%' }} // 전체 화면 차지
                     onEnded={handleVideoEnd} // 비디오 종료 시 핸들러 추가
-                    onLoadedData={startTime > 0 ? handleLoadedData : handlePlayFromStart} // startTime에 따라 호출되는 핸들러 설정
+
+                    onLoadedData={startTime > 0 ? handleLoadedData : null} // startTime에 따라 호출되는 핸들러 설정
                 >
                     <MediaControls>
-                        <Button onClick={handleGoToDetails}>Go to Details</Button> //디테일로 이동 버튼 
-                        <Button onClick={toggleComments}>{isCommentsOpen ? "Hide Comments" : "Show Comments"}</Button> //댓글 보기/숨기기 버튼 
-                        <Button onClick={() => {
-                            const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
-                            if (videoNode) {
-                                const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-                                saveWatchTime(video.id, currentTime); // 현재 시간을 저장
-                            }
-                        }}>Resume Watching</Button> //이어보기 버튼 추가 
+                        <Button onClick={handleGoToDetails}>Go to Details</Button> {/* 디테일로 이동 버튼 */}
+                        
+                        <Button onClick={() => setIsPopupOpen(true)}>댓글</Button> {/* 팝업 버튼 추가 */}
+                        <Button onClick={() => setIsBotOpen(true)}>챗봇</Button> 
                         <Button onClick={() => {
                             const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
                             if (videoNode) {
@@ -119,21 +141,9 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                                 saveWatchTime(video.id, currentTime); // 현재 시간을 저장
                             }
                             handleBack(); // 패널 이동
-                        }}>Back</Button> // 뒤로가기 버튼 추가 
+                        }}>Back</Button> {/* 뒤로가기 버튼 추가 */}
 
-                        //Comment overlay 
-                        {isCommentsOpen && (
-                            <div className="comment-overlay">
-                                <Scroller style={{ padding: '10px', width: '300px', height: '100%', background: 'rgba(0, 0, 0, 0.8)', color: 'white', position: 'absolute', top: 0, right: 0 }}>
-                                    <h3>Comments</h3>
-                                    {comments.map((comment, index) => (
-                                        <div key={index} style={{ marginBottom: '10px' }}>{comment}</div>
-                                    ))}
-                                </Scroller>
-                            </div>
-                        )}
-
-                        //다른 비디오 썸네일 표시 
+                        {/* 다른 비디오 썸네일 표시 */}
                         <Scroller
                             style={{ padding: '10px 0', height: '150px', width: '100%' }} // 스크롤러의 크기 조정
                             direction="horizontal" // 가로 스크롤 방향 설정
@@ -153,163 +163,73 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                             )) : <div>비디오가 없습니다.</div>}
                         </Scroller>
                     </MediaControls>
+                    
                     <source src={video.src} type="video/mp4" />
                 </VideoPlayer>
             </div>
-        </Panel>
-    );
-};
 
-export default SelectableVideoPlayer; */
+            {/* 확인 팝업 (내용이 있는 스크롤 구현) */}
+            <Popup
+                open={isPopupOpen}
+                onClose={() => setIsPopupOpen(false)}
+                style={{ maxWidth: '100%', maxHeight: '300px' }} // 팝업의 최대 크기 제한
+            >
+                <Scroller style={{ maxHeight: '200px' }}> {/* 스크롤러 추가 */}
+                    {Array.from({ length: 15 }).map((_, index) => (
+                        <h5 style={{ fontSize: '0.8rem', margin: 0 }} key={index}>
+                            아 진짜 하기 싫다
+                            <h5 style={{ fontSize: '0.5rem', margin: 0 }}>
+                                @임대규 15:31
+                            </h5>
+                        </h5>
+                    ))}
+                </Scroller>
+                <InputField
+                    placeholder="댓글을 입력하세요..."
+                    value={comment}
+                    onChange={(e) => setComment(e.value)} // 댓글 상태 업데이트
+                    style={{ marginTop: '10px' }} // 입력창 위 여백
+                />
+                <Button onClick={() => {
+                    console.log("댓글 남기기:", comment);
+                    setComment(''); // 댓글 입력 초기화
+                }}>댓글 남기기</Button>
+            </Popup>
 
-
-
-import React, { useRef, useContext, useState } from 'react';
-import Button from '@enact/sandstone/Button';
-import Scroller from '@enact/sandstone/Scroller';
-import { MediaControls } from '@enact/sandstone/MediaPlayer';
-import VideoPlayer from '@enact/sandstone/VideoPlayer';
-import { Header, Panel } from '@enact/sandstone/Panels';
-import { PanelContext } from './Context'; // PanelContext 가져오기
-import { useMainState } from './MainState'; // MainState에서 가져오기
-import './VideoPlayer.css'; // CSS 파일 추가
-import { useBackHandler } from '../App/AppState'; // useBackHandler 가져오기
-import ImageItem from '@enact/sandstone/ImageItem'; // 썸네일 이미지 아이템 추가
-
-const SelectableVideoPlayer = ({ video, startTime }) => {
-    const videoRef = useRef(null);
-    const { loadWatchTime, saveWatchTime, videoData } = useMainState(); // 비디오 데이터 가져오기
-    const { setPanelData } = useContext(PanelContext); // 패널 데이터 설정 함수 가져오기
-    const handleBack = useBackHandler();
-    const [isCommentOpen, setIsCommentOpen] = useState(false); // 댓글 창 상태 관리
-    const [commentMessage, setCommentMessage] = useState(''); // 댓글 메시지 상태 관리
-
-    const handleGoToDetails = () => {
-        const videoNode = videoRef.current.getVideoNode();
-        if (videoNode) {
-            const currentTime = videoNode.currentTime;
-            saveWatchTime(video.id, currentTime);
-        }
-        setPanelData(prev => [...prev, { name: 'detail', data: { index: video.id } }]);
-    };
-
-    const handleVideoEnd = () => {
-        const videoNode = videoRef.current.getVideoNode();
-        if (videoNode) {
-            const currentTime = videoNode.currentTime;
-            saveWatchTime(video.id, currentTime);
-        }
-    };
-
-    const handleLoadedData = () => {
-        const savedTime = loadWatchTime(video.id);
-        const videoNode = videoRef.current.getVideoNode();
-
-        if (videoNode && savedTime > 0 && startTime > 0) {
-            videoNode.currentTime = savedTime;
-            videoNode.play();
-        }
-    };
-
-    const toggleComment = () => {
-        setIsCommentOpen(!isCommentOpen);
-    };
-
-    const handleCommentSubmit = () => {
-        if (!commentMessage.trim()) {
-            //alert('댓글을 입력하세요.');
-            return;
-        }
-        console.log("댓글 남기기:", commentMessage);
-        setCommentMessage('');
-        toggleComment();
-    };
-
-    const handleThumbnailClick = (thumbnailVideo) => {
-        const videoNode = videoRef.current.getVideoNode();
-        if (videoNode) {
-            const currentTime = videoNode.currentTime;
-            saveWatchTime(video.id, currentTime);
-        }
-        setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: thumbnailVideo } }]);
-    };
-
-    const commonButtonStyle = {
-        margin: '10px 5px',
-        padding: '10px',
-        width: '120px'
-    };
-
-    const commentBoxStyle = {
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        width: '300px',
-        height: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        boxShadow: '-2px 0 5px rgba(0, 0, 0, 0.5)',
-        padding: '20px',
-        zIndex: 1000
-    };
-
-    return (
-        <Panel>
-            <Header
-                title={video.title}
-                onBack={() => {
-                    const videoNode = videoRef.current.getVideoNode();
-                    if (videoNode) {
-                        const currentTime = videoNode.currentTime;
-                        saveWatchTime(video.id, currentTime);
-                    }
-                    handleBack();
-                }}
-            />
-            <div className="video-modal" style={{ position: 'relative' }}>
-                <VideoPlayer
-                    loop
-                    ref={videoRef}
-                    style={{ width: '100%', height: '100%' }}
-                    onEnded={handleVideoEnd}
-                    onLoadedData={handleLoadedData}
-                >
-                    <MediaControls>
-                        <Button style={commonButtonStyle} onClick={handleGoToDetails}>Go to Details</Button>
-                        <Button style={commonButtonStyle} onClick={toggleComment}>댓글</Button>
-                        <Button style={commonButtonStyle} onClick={handleBack}>Back</Button>
-                        <Scroller
-                            style={{ padding: '10px 0', height: '150px', width: '100%' }}
-                            direction="horizontal"
-                            horizontalScrollbar="visible"
-                        >
-                            {videoData.length > 0 ? videoData.map(v => (
-                                <ImageItem
-                                    inline
-                                    key={v.id}
-                                    label={v.title.length > 15 ? `${v.title.substring(0, 15)}...` : v.title}
-                                    src={v.thumbnail}
-                                    onClick={() => handleThumbnailClick(v)}
-                                    style={{ width: '240px', height: '160px', margin: '5px', cursor: 'pointer' }}
-                                />
-                            )) : <div>비디오가 없습니다.</div>}
-                        </Scroller>
-                    </MediaControls>
-                    <source src={video.src} type="video/mp4" />
-                </VideoPlayer>
-
-                {isCommentOpen && (
-                    <div style={commentBoxStyle}>
-                        <h2>댓글</h2>
-                        <textarea
-                            placeholder="댓글을 입력하세요..."
-                            style={{ width: '100%', height: '100px' }}
-                            value={commentMessage}
-                            onChange={(e) => setCommentMessage(e.target.value)}
-                        />
-                        <Button onClick={handleCommentSubmit}>댓글 남기기</Button>
+            <Popup
+                open={isBotOpen}
+                onClose={() => setIsBotOpen(false)}
+                style={{ maxWidth: '100%', maxHeight: '500px' }} // 팝업의 최대 크기 제한
+            >
+                <Scroller style={{ maxHeight: '280px' }}>
+                {messages.map((msg, index) => (
+                <div key={index} style={{ 
+                    margin: '5px 0',
+                    textAlign: msg.sender === 'user' ? 'right' : 'left', // 메시지 정렬
+                    display: 'flex', // Flexbox 사용
+                    justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start', // 위치 조정
+                }}>
+                    <div style={{ 
+                        padding: '10px',
+                        borderRadius: '10px',
+                        backgroundColor: msg.sender === 'user' ? '#F1F0F0' : '#F1F0F0', // 메시지 색상
+                        maxWidth: '70%', // 최대 너비 설정
+                        wordWrap: 'break-word', // 긴 단어 줄바꿈
+                        color: 'black',
+                    }}>
+                        <strong>{msg.sender === 'user' ? 'User:' : 'Bot:'}</strong> {msg.text}
                     </div>
-                )}
-            </div>
+                </div>
+                ))}
+                </Scroller>
+                <InputField
+                placeholder="메시지를 입력하세요..."
+                value={comment}
+                onChange={(e) => setComment(e.value)} // 메시지 상태 업데이트
+                style={{ marginTop: '10px', width: '80%' }} // 입력창 위 여백
+                />
+                <Button onClick={handleSendMessage} size="small">전송</Button>
+            </Popup>
         </Panel>
     );
 };

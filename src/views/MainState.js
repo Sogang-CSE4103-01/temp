@@ -52,8 +52,6 @@ export const useMainState = () => {
 
 	return updatedData;
 };
-
-	
     useEffect(() => {
         // 로컬 저장소에서 시청 시간을 불러와서 초기화
         const initialVideoData = [
