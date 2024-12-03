@@ -46,7 +46,7 @@ export const useSignupState = () => {
         try{
             //const response = await fetch('https://cors-anywhere-herokuapp.com/https://connected-backend-yir6.onrender.com/api/register', {
             //const response = await fetch('https://connected-backend-yir6.onrender.com/api/register?username=${username}&password=${password}', {
-                const response = await fetch(`/api/register?username=${newusername}&password=${newpassword}`, {
+                const response = await fetch(`http://192.168.0.2:8080/api/register?username=${newusername}&password=${newpassword}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json',
