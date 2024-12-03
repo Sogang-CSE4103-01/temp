@@ -746,7 +746,7 @@ export const useMainState = () => {
 
     const fetchTotalVideos = useCallback(async () => {
         try {
-            const response = await fetch('/api/num_of_videos');
+            const response = await fetch('http://192.168.0.2:8080/api/num_of_videos');
             if (response.ok) {
                 const count = await response.json();
                 console.log(count);
@@ -774,17 +774,17 @@ export const useMainState = () => {
                 };
 
                 try {
-                    const titleResponse = await fetch(`/api/video_title/${index}`);
+                    const titleResponse = await fetch(`http://192.168.0.2:8080/api/video_title/${index}`);
                     const title = titleResponse.ok ? await titleResponse.text() : defaultVideo.title;
 
-                    const thumbnailResponse = await fetch(`/api/thumbnail/${index}.jpg`);
-                    const thumbnail = thumbnailResponse.ok ? `/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
+                    const thumbnailResponse = await fetch(`http://192.168.0.2:8080/api/thumbnail/${index}.jpg`);
+                    const thumbnail = thumbnailResponse.ok ? `http://192.168.0.2:8080/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
 
                     return {
                         ...defaultVideo,
                         title,
                         thumbnail,
-                        src: `/api/video/${index}.mp4`,
+                        src: `http://192.168.0.2:8080/api/video/${index}.mp4`,
                     };
                 } catch (error) {
                     console.error(`Error loading data for video ${index}:`, error);

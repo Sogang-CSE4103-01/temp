@@ -1,26 +1,24 @@
-// src/views/LoginState.js
 /* eslint-disable */
 import { useState, useCallback, useContext } from 'react';
 import debugLog from '../libs/log';
-import {PanelContext} from './Context';
+import { PanelContext } from './Context';
 
 export const useLogin = () => {
-	const [isLoginOpen, setLoginOpen] = useState(true); // 초기값을 true로 설정
+	const [isLoginOpen, setLoginOpen] = useState(true);
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [isLoginSuccess, setLoginSuccess] = useState(false);
-    const {setPanelData} = useContext(PanelContext);
+	const [loginMessage, setLoginMessage] = useState(''); // 로그인 메시지 상태 추가
+    const { setPanelData } = useContext(PanelContext);
 
 	const handleLoginOpen = useCallback(() => {
 		setLoginOpen(true);
+		setLoginMessage(''); // 메시지 초기화
 	}, []);
 
 	const handleLoginClose = useCallback(() => {
 		setLoginOpen(false);
-		setLoginSuccess(true);
-		//setUsername('');
-		//setPassword('');
-	}, [isLoginSuccess]);
+	}, []);
 
 	const handleUsernameChange = useCallback((e) => {
 		if (e && e.value !== undefined) {
@@ -41,52 +39,45 @@ export const useLogin = () => {
 	}, []);
 
 	const handleCancel = useCallback(() => {
-		//setLoginOpen(false);
 		setUsername('');
 		setPassword('');
-        setPanelData([{name : 'main', data:{}}]);
-	},);
+		setLoginMessage(''); // 메시지 초기화
+        setPanelData([{ name: 'main', data: {} }]);
+	}, []);
 
 	const handleLogin = useCallback(async () => {
 		debugLog('Attempting login', { username, password });
 		try {
-			//const response = await fetch(`https://cors-anywhere-herokuapp.com/https://connected-backend-yir6.onrender.com/api/login`, {
-			//const response = await fetch('https://connected-backend-yir6.onrender.com/api/login?username=${username}&password=${password}', {
-			const response = await fetch(`/api/login?username=${username}&password=${password}`, {
+			const response = await fetch(`http://192.168.0.2:8080/api/login?username=${username}&password=${password}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				//body : JSON.stringify({username, password}),
-				//credentials: 'include',
 			});
 			if (!response.ok) {
-				//throw new Error('Login failed');
 				const data = await response.json();
-				debugLog('Login 111', data);
-				setLoginSuccess(true);
-				handleLoginClose();
+				debugLog('Login failed', data);
+				setLoginMessage('Login failed: Invalid username or password'); // 실패 메시지 설정
+				setLoginSuccess(false);
+				return;
 			}
 			const data = await response.json();
 			debugLog('Login successful', data);
+			setLoginMessage('Login successful!'); // 성공 메시지 설정
 			setLoginSuccess(true);
 			handleLoginClose();
-			setPanelData([{name : 'main', data:{}}]);
+			setPanelData([{ name: 'main', data: {} }]);
 		} catch (error) {
-			//const data = await response.json();
-			debugLog('Login failed 222', error.message);
-			//debugLog('Login 111', data);
-			setLoginSuccess(true);
-			//isLoginSuccess = true;
-			console.log(isLoginSuccess);
-			handleLoginClose();
-            //setPanelData([{name : 'main', data:{}}]);
+			debugLog('Login failed', error.message);
+			setLoginMessage('Login failed: Network error'); // 실패 메시지 설정
+			setLoginSuccess(false);
 		}
-	}, [username, password, isLoginSuccess, handleLoginClose]);
+	}, [username, password, handleLoginClose, setPanelData]);
 
 	return {
 		isLoginOpen,
 		isLoginSuccess,
+		loginMessage, // 메시지를 반환값에 포함
 		handleLoginOpen,
 		handleLoginClose,
 		handleLogin,
@@ -94,6 +85,6 @@ export const useLogin = () => {
 		handlePasswordChange,
 		handleCancel,
 		username,
-		password
+		password,
 	};
 };
