@@ -20,7 +20,9 @@ const tabsWithIcons = [
 	{ title: 'Button', icon: 'gear' },
 	{ title: 'Item', icon: 'trash' },
 	{ title : "ProcState", icon : 'tvguidefvp'},
-	{ title : "Log Out", icon : "logout"}
+    { title : "Log Out", icon : "logout"},
+    { title : "Watching video", icon : "liveplay"},
+    { title : "Recommended", icon : "demosync"},
 ];
 
 const Main = (props) => {
@@ -29,7 +31,7 @@ const Main = (props) => {
 
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
     const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
-    
+    const userId = 5;
 	
     const handleClick = useCallback(
         index => () => {
@@ -83,11 +85,34 @@ const Main = (props) => {
         </ImageItem>
     ));
 
+    const userVideoItems = videoData.filter(video => video.id % userId === 0).map(video => (
+        <ImageItem
+            inline
+            key={video.id}
+            label={video.title}
+            src={video.thumbnail}
+            style={{
+                width: scaleToRem(768),
+                height: scaleToRem(588)
+            }}
+            onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+        >
+            {video.title}
+        </ImageItem>
+    ));
+
+
 	return (
 		<Panel {...props}>
 			<Header title="Sandstone TabLayout" subtitle="Basic TabLayout" />
 			<TabLayout>
 				<Tab title={tabsWithIcons[0].title} icon={tabsWithIcons[0].icon}>
+					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
+				</Tab>
+                <Tab title={tabsWithIcons[5].title} icon={tabsWithIcons[5].icon}>
+					<Scroller>{userVideoItems.length > 0 ? userVideoItems : '비디오가 없습니다.'}</Scroller>
+				</Tab>
+                <Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
 					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
 				</Tab>
 				<Tab title={tabsWithIcons[1].title} icon={tabsWithIcons[1].icon}>

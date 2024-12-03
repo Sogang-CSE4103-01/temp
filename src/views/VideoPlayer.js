@@ -12,7 +12,7 @@ import { useBackHandler } from '../App/AppState'; // useBackHandler 가져오기
 import ImageItem from '@enact/sandstone/ImageItem'; // 썸네일 이미지 아이템 추가
 import Popup from '@enact/sandstone/Popup'; // Popup 컴포넌트 가져오기
 import Input, { InputField } from '@enact/sandstone/Input'; // InputField 가져오기
-
+import Icon from '@enact/sandstone/Icon'; // Icon 컴포넌트 추가
 
 
 const SelectableVideoPlayer = ({ video, startTime }) => {
@@ -72,6 +72,8 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: thumbnailVideo } }]); // 해당 비디오 재생 패널로 이동
     };
 
+    
+
     const handleSendMessage = async () => {
         if (comment.trim() === '') return; // 빈 메시지 전송 방지
     
@@ -122,7 +124,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                         saveWatchTime(video.id, currentTime); // 현재 시간을 저장
                     }
                     handleBack(); // 패널 이동
-                }} 
+                }}
             />
             <div className="video-modal">
                 <VideoPlayer
@@ -132,6 +134,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     onEnded={handleVideoEnd} // 비디오 종료 시 핸들러 추가
                     onLoadedData={startTime > 0 ? handleLoadedData : null} // startTime에 따라 호출되는 핸들러 설정
                 >
+                    
                     <MediaControls>
                         <Button onClick={handleGoToDetails}>Go to Details</Button> {/* 디테일로 이동 버튼 */}
                         
