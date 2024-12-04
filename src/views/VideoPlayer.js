@@ -14,6 +14,7 @@ import Popup from '@enact/sandstone/Popup'; // Popup 컴포넌트 가져오기
 import Input, { InputField } from '@enact/sandstone/Input'; // InputField 가져오기
 import {username} from './LoginState';
 import Icon from '@enact/sandstone/Icon'; // Icon 컴포넌트 추가
+import { ADDR_ } from './address';
 
 const flag = 0;
 
@@ -130,7 +131,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         const videoId = video.id;
         try {
             //const url = `http://localhost:8080/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
-            const url = `http://192.168.0.23:8080/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
+            const url = `${ADDR_}/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
             const response = await fetch(url);
             /*
             const response = await fetch(url, {
@@ -177,7 +178,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             //const url = `http://localhost:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
             
             //const url = `http://192.168.0.2:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
-            const url = `http://192.168.0.23:8080/api/comment/create?galaxy=${videoId}&userId=${"1"}&content=${content}`
+            const url = `${ADDR_}/api/comment/create?galaxy=${videoId}&userId=${"1"}&content=${content}`
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -278,15 +279,14 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 style={{ maxWidth: '100%', maxHeight: '500px' }} // 팝업의 최대 크기 제한
             >
                 <Scroller style={{ maxHeight: '300px' }}>
+                    {/*}
                     {comments.length > 0 ? comments.map((comment, index) => (
-                        
                         <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
                             <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>comment : {comment} / User ID: {comment.userId}</div>
                             <div style={{ fontSize: '0.8rem' }}>{comment.content}</div>
                         </div>
-
-                    )) : <div>댓글이 없습니다.</div>}
-                    {/*}
+                    )) : <div>댓글이 없습니다.</div>} 
+                    } */}
                     {Array.from({ length: 15 }).map((_, index) => (
                         <h5 style={{ fontSize: '0.8rem', margin: 0 }} key={index}>
                             아 진짜 하기 싫다
@@ -294,7 +294,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                                 @임대규 15:31
                             </h5>
                         </h5>
-                    ))} */}
+                    ))} 
                     {/*}
                     {myComments.length > 0 ? myComments.map((comment, index) => (
                         <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>

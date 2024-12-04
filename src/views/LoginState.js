@@ -2,6 +2,7 @@
 import { useState, useCallback, useContext } from 'react';
 import debugLog from '../libs/log';
 import { PanelContext } from './Context';
+import { ADDR_ } from './address';
 
 export const useLogin = () => {
 	const [isLoginOpen, setLoginOpen] = useState(true);
@@ -48,7 +49,8 @@ export const useLogin = () => {
 	const handleLogin = useCallback(async () => {
 		debugLog('Attempting login', { username, password });
 		try {
-			const response = await fetch(`http://192.168.0.23:8080/api/login?username=${username}&password=${password}`, {
+			//console.log(`${ADDR_}/api/login?username=${username}&password=${password}`);
+			const response = await fetch(`http://192.168.10.14:8080/api/login?username=${username}&password=${password}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

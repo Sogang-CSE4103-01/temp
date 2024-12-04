@@ -714,6 +714,7 @@ export const useMainState = () => {
 import { useCallback, useEffect, useState } from 'react';
 import { sam } from '../libs/services';
 import debugLog from '../libs/log';
+import { ADDR_ } from './address';
 
 // 로컬 이미지 임포트 (기본 썸네일로 사용)
 import defaultThumbnail from '../assets/3.jpg';
@@ -744,7 +745,7 @@ export const useMainState = () => {
 
     const fetchTotalVideos = useCallback(async () => {
         try {
-            const response = await fetch('http://192.168.0.23:8080/api/num_of_videos');
+            const response = await fetch(`${ADDR_}/api/num_of_videos`);
             if (response.ok) {
                 const count = await response.json();
                 console.log(count);
@@ -772,19 +773,19 @@ export const useMainState = () => {
                 };
 
                 try {
-                    const titleResponse = await fetch(`http://192.168.0.23:8080/api/video_title/${index}`);  //
+                    const titleResponse = await fetch(`${ADDR_}/api/video_title/${index}`);  //
                     console.log(index);
                     console.log(titleResponse);
                     const title = titleResponse.ok ? await titleResponse.text() : defaultVideo.title;
 
-                    const thumbnailResponse = await fetch(`http://192.168.0.23:8080/api/thumbnail/${index}.jpg`);
-                    const thumbnail = thumbnailResponse.ok ? `http://192.168.0.23:8080/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
+                    const thumbnailResponse = await fetch(`${ADDR_}/api/thumbnail/${index}.jpg`);
+                    const thumbnail = thumbnailResponse.ok ? `${ADDR_}/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
 
                     return {
                         ...defaultVideo,
                         title,
                         thumbnail,
-                        src: `http://192.168.0.23:8080/api/video/${index}.mp4`,
+                        src: `${ADDR_}/api/video/${index}.mp4`,
                     };
                 } catch (error) {
                     console.error(`Error loading data for video ${index}:`, error);

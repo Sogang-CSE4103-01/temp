@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom'; // useHistory를 useNavigate로 변경
 import debugLog from '../libs/log';
 import Popup from '@enact/sandstone/Popup';
+import { ADDR_ } from './address';
 
 export const useSignupState = () => {
     const [newusername, setUsername] = useState('');
@@ -46,7 +47,7 @@ export const useSignupState = () => {
         try{
             //const response = await fetch('https://cors-anywhere-herokuapp.com/https://connected-backend-yir6.onrender.com/api/register', {
             //const response = await fetch('https://connected-backend-yir6.onrender.com/api/register?username=${username}&password=${password}', {
-                const response = await fetch(`http://192.168.0.23:8080/api/register?username=${newusername}&password=${newpassword}`, {
+                const response = await fetch(`${ADDR_}/api/register?username=${newusername}&password=${newpassword}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type' : 'application/json',
