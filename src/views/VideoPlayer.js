@@ -129,35 +129,69 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         //const videoNode = videoRef.current.getVideoNode();
         const videoId = video.id;
         try {
-            const url = `http://localhost:8080/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
-            const response = await fetch(url, {method:'GET'});
+            //const url = `http://localhost:8080/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
+            const url = `http://192.168.0.23:8080/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
+            const response = await fetch(url);
+            /*
+            const response = await fetch(url, {
+                method:'GET',
+                headers : {
+                    'Content-Type' : 'application/json',
+                }
+            });*/
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 setComments(prev => [...prev, ...data]); // 기존 댓글에 새 댓글 추가
             } else {
                 console.error("댓글 불러오기 실패:", response.status);
             }
         } catch (error) {
-            console.error("댓글 불러오기 오류:", error);
+            console.error("댓글 불러오기 오류:", error.message);
         }
     };
     
     const postComment = async (content) => {
-        const videoId = video.id;
+        const videoId = String(video.id); 
+        console.log(videoId);
+        const userId =  "1";
+        console.log(userId);
+
         try {
-            const url = `http://localhost:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
+            
+            /*
+            const url = `http://192.168.0.2:8080/api/comment/create`;
+            
             const response = await fetch(url, {
                 method: 'POST',
-                //headers: {
-                //    'Content-Type': 'application/json',
-                //},
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    galaxy: videoId,
+                    //videoId : 1,
+                    userId: username,
+                    content: encodeURIComponent(content),
+                }),
+            });  */
+            //const url = `http://localhost:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
+            
+            //const url = `http://192.168.0.2:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
+            const url = `http://192.168.0.23:8080/api/comment/create?galaxy=${videoId}&userId=${"1"}&content=${content}`
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    //'Content-Type' : 'application/jx-www-form-urlencoded'
+                }
                 //}),
             });
+            //); 
             if (response.ok) {
                 const newComment = await response.json();
                 //setComments(prev => [newComment, ...prev]); // 새 댓글을 기존 목록의 맨 앞에 추가
-                setComments(prev => [content, ...prev]);
-                setMyComments(prev => [...prev, {...content, isLocal : true}]);
+                //setComments(prev => [content, ...prev]);
+                //setMyComments(prev => [...prev, {...content, isLocal : true}]);
                 console.log(comments.length);
             } else {
                 console.error("댓글 전송 실패:", response.status);
@@ -245,10 +279,12 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             >
                 <Scroller style={{ maxHeight: '300px' }}>
                     {comments.length > 0 ? comments.map((comment, index) => (
+                        
                         <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
                             <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>comment : {comment} / User ID: {comment.userId}</div>
                             <div style={{ fontSize: '0.8rem' }}>{comment.content}</div>
                         </div>
+
                     )) : <div>댓글이 없습니다.</div>}
                     {/*}
                     {Array.from({ length: 15 }).map((_, index) => (

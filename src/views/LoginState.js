@@ -48,7 +48,7 @@ export const useLogin = () => {
 	const handleLogin = useCallback(async () => {
 		debugLog('Attempting login', { username, password });
 		try {
-			const response = await fetch(`http://192.168.0.2:8080/api/login?username=${username}&password=${password}`, {
+			const response = await fetch(`http://192.168.0.23:8080/api/login?username=${username}&password=${password}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',

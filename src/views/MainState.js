@@ -744,7 +744,7 @@ export const useMainState = () => {
 
     const fetchTotalVideos = useCallback(async () => {
         try {
-            const response = await fetch('http://192.168.0.2:8080/api/num_of_videos');
+            const response = await fetch('http://192.168.0.23:8080/api/num_of_videos');
             if (response.ok) {
                 const count = await response.json();
                 console.log(count);
@@ -772,17 +772,19 @@ export const useMainState = () => {
                 };
 
                 try {
-                    const titleResponse = await fetch(`http://192.168.0.2:8080/api/video_title/${index}`);
+                    const titleResponse = await fetch(`http://192.168.0.23:8080/api/video_title/${index}`);  //
+                    console.log(index);
+                    console.log(titleResponse);
                     const title = titleResponse.ok ? await titleResponse.text() : defaultVideo.title;
 
-                    const thumbnailResponse = await fetch(`http://192.168.0.2:8080/api/thumbnail/${index}.jpg`);
-                    const thumbnail = thumbnailResponse.ok ? `http://192.168.0.2:8080/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
+                    const thumbnailResponse = await fetch(`http://192.168.0.23:8080/api/thumbnail/${index}.jpg`);
+                    const thumbnail = thumbnailResponse.ok ? `http://192.168.0.23:8080/api/thumbnail/${index}.jpg` : defaultVideo.thumbnail;
 
                     return {
                         ...defaultVideo,
                         title,
                         thumbnail,
-                        src: `http://192.168.0.2:8080/api/video/${index}.mp4`,
+                        src: `http://192.168.0.23:8080/api/video/${index}.mp4`,
                     };
                 } catch (error) {
                     console.error(`Error loading data for video ${index}:`, error);
@@ -794,10 +796,29 @@ export const useMainState = () => {
         return videos;
     };
 
+    /*
+    useEffect(() => {
+        if (totalVideos > 0){
+            loadData();
+        }
+    }, [totalVideos]); */
+
     // 데이터 로드
     const loadData = useCallback(async () => {
         setLoading(true); // 로딩 시작
         try {
+            /*
+            const start = page * 10 - 9;
+            const end = Math.min(start + 9, totalVideos);
+
+            const newVideos = await generateVideoData(start, end); // 필요한 데이터 범위만 호출
+            setVideoData((prevData) => {
+                const mergedData = [...prevData, ...newVideos];
+                const uniqueData = Array.from(new Set(mergedData.map((video) => video.id)))
+                    .map((id) => mergedData.find((video) => video.id === id));
+                return uniqueData;
+            }); */
+            
             if (flag == 0 || totalVideos - (page * 10 - 9) >= 10) {
                 flag = 1;
                 const newVideos = await generateVideoData(page * 10 - 9, page * 10); // Fetch 10 videos based on the current page
@@ -821,7 +842,7 @@ export const useMainState = () => {
                         .map((id) => mergedData.find((video) => video.id === id));
                     return uniqueData; // 중복 제거된 데이터 반환
                 });
-                console.log((page * 10 - 9) + (totalVideos - (page * 10 - 9)));
+                console.log((page * 10 - 9) + (totalVideos - (page * 10 - 9))); 
             }
         } catch (error) {
             console.error('Error loading video data:', error);
@@ -831,9 +852,14 @@ export const useMainState = () => {
     }, [page, totalVideos]);
 
     useEffect(() => {
-        fetchTotalVideos();
-        loadData(); // Load the first set of videos on mount
-    }, [fetchTotalVideos, loadData]);
+        const fetchAndLoad = async () => {
+            await fetchTotalVideos();
+            loadData();
+        }
+        //fetchTotalVideos();
+        //loadData(); // Load the first set of videos on mount
+        fetchAndLoad();
+    }, []);
 
     const loadMore = () => {
         if (videoData.length < totalVideos) {
