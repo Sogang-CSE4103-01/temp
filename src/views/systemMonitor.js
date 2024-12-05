@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from "react";
 import ProgressBar from '@enact/sandstone/ProgressBar';
 //import { getSystemResources } from "./systemUtils";
-import { getLunaSystemResources } from "./lunaUtils";
+import { getLunaSystemResource } from "./lunaUtils";
 
 
 const SystemMonitor = () => {
@@ -13,8 +13,8 @@ const SystemMonitor = () => {
         
         const fetchData = async () => {
             try{
-                //const systemData = await getSystemResources();
-                const systemData = await getLunaSystemResources();
+                //const systemData = await getSystemResource();
+                const systemData = await getLunaSystemResource();
 
                 if(systemData){
                     setCPUUsage(systemData.cpuUsage);

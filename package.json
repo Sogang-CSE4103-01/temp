@@ -43,15 +43,15 @@
 		"@enact/i18n": "^4.7.0",
 		"@enact/sandstone": "^2.9.5",
 		"@enact/spotlight": "^4.7.0",
-		"@enact/ui": "^4.7.0",
+		"@enact/ui": "^4.9.4",
 		"@enact/webos": "^4.9.4",
 		"fs": "^0.0.1-security",
 		"ilib": "^14.17.0",
 		"openai": "^4.73.1",
 		"prop-types": "^15.8.1",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"react-router-dom": "^7.0.1"
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-router-dom": "^7.0.2"
 	},
 	"devDependencies": {
 		"eslint-config-enact-proxy": "^1.0.5",
@@ -69,5 +69,5 @@
 			"npm run lint -- --fix"
 		]
 	},
-	"proxy" : "http://192.168.0.23:8080" 
+	"proxy": "http://192.168.0.23:8080"
 }

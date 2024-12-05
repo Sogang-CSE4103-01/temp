@@ -5,13 +5,18 @@ import { cpuUsage, memoryUsage } from 'process'
 export const getSystemResources = async() => {
     try{
         //const stat = await fs.readFile('proc/stat', 'utf8');
-        const meminfo = await fs.readFile('/proc/meminfo', 'utf8');
+        //const meminfo = await fs.readFile('/proc/meminfo', 'utf8');
+        const meminfo = await fs.readFile('../__mock__/com.webos.memorymanager/getUnitList-1886768026', 'utf8');
+        //console.log(meminfo);
 
         const stat = await fs.readFile('../__mock__/com.webos.memorymanager/getProcStat-2136700690', 'utf8');
+        //console.log(stat);
         //const meminfo = await fs.readFile('../__mock__/com.webos.memorymanager/getProcStat-2136700690', 'utf8');
 
         const cpuUsage = parseCPUUsage(stat);
         const memoryUsage = parseMemoryUsage(meminfo);
+
+        console.log(cpuUsage, memoryUsage);
 
         return {cpuUsage, memoryUsage};
     }

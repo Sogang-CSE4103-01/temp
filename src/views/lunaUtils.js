@@ -1,4 +1,5 @@
 /* eslint-disable */
+//import LS2Request from "../../__mock__/@enact/webos/LS2Request";
 import LS2Request from "@enact/webos/LS2Request";
 
 /*
