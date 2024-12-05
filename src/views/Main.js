@@ -15,6 +15,8 @@ import useLogOut from './LogoutState';
 import { PanelContext } from './Context'; // PanelContext 가져오기
 import Popup from '@enact/sandstone/Popup'; // 팝업 컴포넌트 가져오기
 import { getUserId } from './address'; // config에서 setUserId 가져오기
+import { QRCodeCanvas } from 'qrcode.react'; // 또는 QRCodeSVG
+
 
 const tabsWithIcons = [
 	{ title: 'Home', icon: 'home' },
@@ -24,6 +26,7 @@ const tabsWithIcons = [
 	{ title: "Log Out", icon: "logout" },
 	{ title: "Watching video", icon: "liveplay" },
 	{ title: "Recommended", icon: "demosync" },
+    { title: "Upload", icon: "folderupper"},
 ];
 
 const Main = (props) => {
@@ -35,6 +38,7 @@ const Main = (props) => {
 	console.log("현재유저", userId);
 	const { watchedVideos, fetchWatchedVideos } = useWatchedVideos(userId); // 시청 중인 비디오 가져오기
 	const [activeTab, setActiveTab] = useState(0); // 활성 탭 상태 관리
+    const [qrUrl, setQrUrl] = useState(''); //QR 코드용
 
 	const handleClick = useCallback(
 		index => () => {
@@ -118,6 +122,13 @@ const Main = (props) => {
 		</ImageItem>
 	));
 
+    const generateRandomURL = () => {
+		const randomId = Math.floor(Math.random() * 100000); // 0~99999 사이의 랜덤 숫자
+		const randomUrl = `http://192.168.0.2:8080/register`;
+		setQrUrl(randomUrl);
+        console.log(qrUrl, setQrUrl);
+	};
+
 	console.log("userid for main panner", userId);
 
 	return (
@@ -137,6 +148,21 @@ const Main = (props) => {
 				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
 					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
 				</Tab>
+
+                <Tab title={tabsWithIcons[7].title} icon={tabsWithIcons[7].icon}>
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                        <Button onClick={generateRandomURL}>임의 URL QR 코드 생성</Button>
+                        {qrUrl ? (
+                            <div style={{ marginTop: '20px' }}>
+                                <p>생성된 URL: {qrUrl}</p>
+                                <QRCodeCanvas value={qrUrl} size={256} />
+                            </div>
+                        ) : (
+                            <p>QR 코드를 생성하려면 버튼을 클릭하세요.</p>
+                        )}
+                    </div>
+                </Tab>
+
 				<Tab title={tabsWithIcons[1].title} icon={tabsWithIcons[1].icon}>
 					<Button icon="demosync">Button 1</Button>
 					<Button icon="demosync">Button 2</Button>

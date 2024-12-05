@@ -98,6 +98,7 @@ export const useMainState = () => {
 
     // 데이터 로드
     const loadData = useCallback(async () => {
+        console.log("페이지를 불러옵니다");
         setLoading(true); // 로딩 시작
 
         console.log("load data");
