@@ -14,7 +14,7 @@ const SystemMonitor = () => {
         const fetchData = async () => {
             try{
                 //const systemData = await getSystemResources();
-                const systemData = await getLunaSystemResources();
+                //const systemData = await getLunaSystemResources();
 
                 if(systemData){
                     setCPUUsage(systemData.cpuUsage);

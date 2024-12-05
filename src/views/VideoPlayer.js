@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 import React, { useRef, useContext, useState, useEffect } from 'react';
 import Button from '@enact/sandstone/Button';
 import Scroller from '@enact/sandstone/Scroller';
@@ -15,6 +15,7 @@ import Input, { InputField } from '@enact/sandstone/Input'; // InputField 가져
 import {username} from './LoginState';
 import Icon from '@enact/sandstone/Icon'; // Icon 컴포넌트 추가
 import { ADDR_ } from './address';
+import { getUserId } from './address'; // config에서 setUserId 가져오기
 
 const flag = 0;
 
@@ -31,7 +32,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     const [comments, setComments] = useState([]); // 댓글 목록 상태
     const [page, setPage] = useState(1); // 현재 페이지 번호
     const [myComments, setMyComments] = useState([]);
-
+    const userId = getUserId();
     
     useEffect(() => {
         console.log("new comments : ", comments);
@@ -57,18 +58,21 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         }
     };
 
-    const handleLoadedData = () => {
-        const savedTime = loadWatchTime(video.id); // 저장된 시간 불러오기
+    const handleLoadedData = async () => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
+        videoNode.pause();
+        const savedTime = await loadWatchTime(video.id); // 저장된 시간 불러오기
+        console.log("불러온 시간: ", savedTime);
         const videoId = video.id;
-        
+    
         if (videoNode && savedTime > 0) {
             videoNode.currentTime = savedTime; // 저장된 시간으로 이동
             videoNode.play(); // 비디오 재생 시작
         }
-
+    
         console.log("Video ID : ", videoId);
     };
+    
 
     const setVideo = (video) => {
         videoRef.current = video; // 비디오 설정
@@ -215,7 +219,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
                     if (videoNode) {
                         const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-                        saveWatchTime(video.id, currentTime); // 현재 시간을 저장
+                        saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
                     }
                     handleBack(); // 패널 이동
                 }}
@@ -242,7 +246,9 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                             const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
                             if (videoNode) {
                                 const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-                                saveWatchTime(video.id, currentTime); // 현재 시간을 저장
+                                saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
+                                console.log(typeof video.id);
+                                console.log(typeof currentTime);
                             }
                             handleBack(); // 패널 이동
                         }}>Back</Button> {/* 뒤로가기 버튼 추가 */}

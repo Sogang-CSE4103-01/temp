@@ -3,6 +3,7 @@ import { useState, useCallback, useContext } from 'react';
 import debugLog from '../libs/log';
 import { PanelContext } from './Context';
 import { ADDR_ } from './address';
+import { setUserId } from './address'; // config에서 setUserId 가져오기
 
 export const useLogin = () => {
 	const [isLoginOpen, setLoginOpen] = useState(true);
@@ -50,7 +51,7 @@ export const useLogin = () => {
 		debugLog('Attempting login', { username, password });
 		try {
 			//console.log(`${ADDR_}/api/login?username=${username}&password=${password}`);
-			const response = await fetch(`http://192.168.10.14:8080/api/login?username=${username}&password=${password}`, {
+			const response = await fetch(`${ADDR_}/api/login?username=${username}&password=${password}`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -65,6 +66,11 @@ export const useLogin = () => {
 			}
 			const data = await response.json();
 			debugLog('Login successful', data);
+			const userId = data.userId;
+            console.log('User ID:', userId);
+
+            // config.js에서 제공하는 setUserId 함수로 userId 설정
+            setUserId(userId);
 			setLoginMessage('Login successful!'); // 성공 메시지 설정
 			setLoginSuccess(true);
 			handleLoginClose();
