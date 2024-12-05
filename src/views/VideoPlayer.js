@@ -17,6 +17,7 @@ import Icon from '@enact/sandstone/Icon'; // Icon 컴포넌트 추가
 import { ADDR_ } from './address';
 
 const flag = 0;
+const data1 = [];
 
 const SelectableVideoPlayer = ({ video, startTime }) => {
     const videoRef = useRef(null);
@@ -29,14 +30,21 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     const [messages, setMessages] = useState([]); // 챗봇 메시지 상태 관리
 
     const [comments, setComments] = useState([]); // 댓글 목록 상태
-    const [page, setPage] = useState(1); // 현재 페이지 번호
-    const [myComments, setMyComments] = useState([]);
+    const [page, setPage] = useState(0); // 현재 페이지 번호
+    const [myComment, setMyComments] = useState('');
 
     
     useEffect(() => {
         console.log("new comments : ", comments);
-        console.log("my comments : ", myComments);
-    }, [comments, myComments]);
+        //console.log("my comments : ", myComments);
+    }, [comments]);
+
+    
+    useEffect(() => {
+        if(isPopupOpen){
+            fetchComments();
+        }
+    }, [isPopupOpen]) 
 
 
     const handleGoToDetails = () => {
@@ -86,7 +94,6 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: thumbnailVideo } }]); // 해당 비디오 재생 패널로 이동
     };
 
-    
 
     const handleSendMessage = async () => {
         if (comment.trim() === '') return; // 빈 메시지 전송 방지
@@ -142,8 +149,17 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             });*/
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
-                setComments(prev => [...prev, ...data]); // 기존 댓글에 새 댓글 추가
+                console.log("data :", data);
+                
+                //setComments(prevComments => [...prevComments, ...data.comments]);
+                
+                setComments((prevComments) => [
+                    ...prevComments,
+                    ...data.comments.filter(
+                        (newComment) => !prevComments.some((prevComment) => prevComment.id === newComment.id)
+                    ),
+                ]);
+
             } else {
                 console.error("댓글 불러오기 실패:", response.status);
             }
@@ -151,12 +167,31 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             console.error("댓글 불러오기 오류:", error.message);
         }
     };
+
+    const handleSendComment = async () => {
+        if (comment.trim() === '') return; // 빈 댓글 전송 방지
+
+        console.log("sending comments : ", comment);
+
+        // 댓글 목록에 사용자가 입력한 댓글을 추가
+        //setComments(prev => [{ content: comment }, ...prev]);
+
+        // 서버에 댓글 전송
+        await postComment(comment);
+
+        setComment('');
+    }
     
-    const postComment = async (content) => {
+    const postComment = async (comment) => {
+        if(comment.trim() === '') {
+            console.log("empty comment");
+            return;
+        }
+
         const videoId = String(video.id); 
-        console.log(videoId);
+        //console.log(videoId);
         const userId =  "1";
-        console.log(userId);
+        //console.log(userId);
 
         try {
             
@@ -178,7 +213,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             //const url = `http://localhost:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
             
             //const url = `http://192.168.0.2:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
-            const url = `${ADDR_}/api/comment/create?galaxy=${videoId}&userId=${"1"}&content=${content}`
+            const url = `${ADDR_}/api/comment/create?galaxy=${videoId}&userId=${"1"}&content=${comment}`
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -193,12 +228,12 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 //setComments(prev => [newComment, ...prev]); // 새 댓글을 기존 목록의 맨 앞에 추가
                 //setComments(prev => [content, ...prev]);
                 //setMyComments(prev => [...prev, {...content, isLocal : true}]);
-                console.log(comments.length);
+                console.log(newComment.length);
             } else {
                 console.error("댓글 전송 실패:", response.status);
-                setComments(prev => [content, ...prev]);
-                setMyComments(prev => [...prev, {...content, isLocal : true}]);
-                console.log(comments.length);
+                //setComments(prev => [newComment, ...prev]);
+                //setMyComments(prev => [...prev, {...content, isLocal : true}]);
+                //console.log(newComments.length);
             }
         } catch (error) {
             console.error("댓글 전송 오류:", error);
@@ -235,7 +270,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                         
                         <Button onClick={() => { 
                             setIsPopupOpen(true);
-                            fetchComments();
+                            //fetchComments();
                             }}>댓글</Button> {/* 팝업 버튼 추가 */}
                         <Button onClick={() => setIsBotOpen(true)}>챗봇</Button> 
                         <Button onClick={() => {
@@ -279,6 +314,28 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 style={{ maxWidth: '100%', maxHeight: '500px' }} // 팝업의 최대 크기 제한
             >
                 <Scroller style={{ maxHeight: '300px' }}>
+
+                <div>
+                    {comments.length > 0 ? (
+                        comments.map((c) => (
+                            <div key={c.id} style={{ marginBottom: '10px', padding: '5px' }}>
+                                <h5 style={{ fontSize: '0.8rem', margin: 0, fontWeight: 'bold' }}>
+                                    comment: {c.content}
+                                    {/*
+                                    <span style={{ fontSize: '0.6rem', marginLeft: '10px', color: '#666' }}>
+                                        / User ID: {comment.userId}
+                                    </span>  */}
+                                </h5>
+                                <h5 style={{ fontSize: '0.5rem', margin: 0, color: '#888' }}>
+                                    @ {c.user?.username || 'Unknown'} - {String(c.createdAt)}
+                                </h5>
+                            </div>
+                        ))
+                    ) : (
+                        <div>댓글이 없습니다.</div>
+                    )}
+                </div>
+
                     {/*}
                     {comments.length > 0 ? comments.map((comment, index) => (
                         <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
@@ -286,7 +343,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                             <div style={{ fontSize: '0.8rem' }}>{comment.content}</div>
                         </div>
                     )) : <div>댓글이 없습니다.</div>} 
-                    } */}
+                    }
                     {Array.from({ length: 15 }).map((_, index) => (
                         <h5 style={{ fontSize: '0.8rem', margin: 0 }} key={index}>
                             아 진짜 하기 싫다
@@ -294,7 +351,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                                 @임대규 15:31
                             </h5>
                         </h5>
-                    ))} 
+                    ))} */}
                     {/*}
                     {myComments.length > 0 ? myComments.map((comment, index) => (
                         <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
@@ -308,12 +365,21 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     value={comment}
                     onChange={(e) => setComment(e.value)} // 댓글 상태 업데이트
                     style={{ marginTop: '10px' }} // 입력창 위 여백
-                />
-                <Button onClick={() => {
+                /> 
+                {/*
+                <Button onClick={
+                    postComment
+                    }>댓글 남기기</Button> 
+                */}
+                
+                <Button onClick={ async() => {
                     console.log("댓글 남기기:", comment);
-                    postComment(comment);
+                    setMyComments(comment);
+                    await postComment(comment);
+                    //postComment(comment);
                     setComment(''); // 댓글 입력 초기화
-                }}>댓글 남기기</Button>
+                    console.log('end of post');
+                }}>댓글 남기기</Button>  
 
                 <Button onClick={() => {
                     setPage(prev => prev + 1);
