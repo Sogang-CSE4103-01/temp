@@ -16,6 +16,8 @@ import { PanelContext } from './Context'; // PanelContext 가져오기
 import Popup from '@enact/sandstone/Popup'; // 팝업 컴포넌트 가져오기
 import { getUserId } from './address'; // config에서 setUserId 가져오기
 import { QRCodeCanvas } from 'qrcode.react'; // 또는 QRCodeSVG
+import { InputField } from '@enact/sandstone/Input';
+import {createPlaylist} from './playlist';
 
 
 const tabsWithIcons = [
@@ -40,6 +42,11 @@ const Main = (props) => {
 	const [activeTab, setActiveTab] = useState(0); // 활성 탭 상태 관리
     const [qrUrl, setQrUrl] = useState(''); //QR 코드용
 
+	const [isListAdditionOpen, setIsListAdditionOpen] = useState(false);  //playlist addition
+	const [title, setTitle] = useState('');
+
+	//const {createPlaylist} = Playlist(); 
+
 	const handleClick = useCallback(
 		index => () => {
 			setSelectedVideo(videoData[index]); // 선택된 비디오 설정
@@ -47,6 +54,11 @@ const Main = (props) => {
 		},
 		[videoData]
 	);
+	
+
+	const handleAddition = () => {
+		setIsListAdditionOpen(true);
+	};
 
 	const handlePopupConfirm = () => {
 		const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
@@ -146,7 +158,36 @@ const Main = (props) => {
 					<Scroller>{wvideoItems.length > 0 ? wvideoItems : '비디오가 없습니다.'}</Scroller>
 				</Tab>
 				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
-					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
+					{/*<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
+					<button onClick={() => setIsListAdditionOpen(true)}>add playlist</button> */}
+
+					
+					<div style={{ textAlign: 'center', padding: '20px' }}>
+						<Button onClick={() => setIsListAdditionOpen(true)}>Add New Playlist</Button>
+					</div>
+
+					<Popup open={isListAdditionOpen} onClose={() => setIsListAdditionOpen(false)}>
+						<h2>Create a New Playlist</h2>
+
+						<InputField
+							placeholder="enter the title..."
+							value={title}
+							onChange={(e) => setTitle(e.value)} // 댓글 상태 업데이트
+							style={{ marginTop: '10px' }} // 입력창 위 여백
+						/> 
+						
+						<Button onClick={() => {
+							// Handle the playlist creation logic here
+							console.log('New playlist created!');
+							createPlaylist(title);
+							console.log('calling create playlist');
+							setIsListAdditionOpen(false); // Close the popup
+						}}>
+							Yes
+						</Button> 
+						<Button onClick={() => setIsListAdditionOpen(false)}>Cancel</Button> 
+					</Popup> 
+					
 				</Tab>
 
                 <Tab title={tabsWithIcons[7].title} icon={tabsWithIcons[7].icon}>
