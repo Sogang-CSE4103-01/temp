@@ -25,7 +25,7 @@ const tabsWithIcons = [
 	{ title: "ProcState", icon: 'tvguidefvp' },
 	{ title: "Log Out", icon: "logout" },
 	{ title: "Watching video", icon: "liveplay" },
-	{ title: "Recommended", icon: "demosync" },
+	{ title: "Playlist", icon: "demosync" },
     { title: "Upload", icon: "folderupper"},
 ];
 

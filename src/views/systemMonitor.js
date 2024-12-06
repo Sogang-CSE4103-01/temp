@@ -3,14 +3,23 @@ import React, {useState, useEffect} from "react";
 import ProgressBar from '@enact/sandstone/ProgressBar';
 //import { getSystemResources } from "./systemUtils";
 import { getLunaSystemResource } from "./lunaUtils";
+import LS2Request from "@enact/webos/LS2Request";
+//import { WebOS } from 'webos-service'; 
+
+const request = new LS2Request();
+
 
 
 const SystemMonitor = () => {
     const [cpuUsage, setCPUUsage] = useState(0);
     const [memoryUsage, setMemoryUsage] = useState({total : 0, used : 0});
 
+    //var lunaClient = new WebOS.LunaServiceClient();
+    //lunaClient.connect();
+
     useEffect(() => {
         
+    
         const fetchData = async () => {
             try{
                 //const systemData = await getSystemResource();
@@ -34,6 +43,7 @@ const SystemMonitor = () => {
     return (
         <div>
             <h1>System Monitor</h1>
+            
             <div>
                 <h2>CPU Usage</h2>
                 <ProgressBar progress = {cpuUsage / 100}/>

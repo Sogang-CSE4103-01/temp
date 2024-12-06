@@ -13,5 +13,8 @@
 	"supportPortraitMode": true,
 	"supportTouchMode": "full",
 	"transparent": false,
-	"uiRevision": 2
+	"uiRevision": 2,
+	"requiredPermissions":[
+		"memorymanager.query"
+	]
 }
