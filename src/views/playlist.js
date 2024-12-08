@@ -14,6 +14,9 @@ import defaultThumbnail from '../assets/3.jpg';
     const [pid, setPid] = useState(0);
     const size = 10;
     //const playlist_id = 0;
+    const [playlistVideo, setPlaylistVideo] = useState([]);
+
+    const [addition, setAddtion] = useState([]);
 
     const { loadWatchTime, saveWatchTime, videoData } = useMainState(); 
 
@@ -141,7 +144,7 @@ const loadPlaylists = useCallback(() => {
                 thumbnail: `${ADDR_}/api/thumbnail/${record.video.id}.jpg` || defaultThumbnail,
                 src: `${ADDR_}/api/video/${record.video.id}.mp4`,
             }));
-            setPlaylists(playlistVideos);
+            setPlaylistVideo(playlistVideos);
         } else {
             console.error('Failed to fetch watched videos');
         }
@@ -152,16 +155,55 @@ const loadPlaylists = useCallback(() => {
     }
   });
 
+  const addButton = useCallback(async () => {
+    console.log("add button");
+
+
+  })
+
+  const handleAddition = useCallback(async (key) => {
+    console.log('handle addition : ', key);
+
+    setAddtion((prevKeys) => [...prevKeys, key]);
+
+  }, [])
+
+  const addVdieos = useCallback(async() => {
+    setLoading(true);
+
+        try {
+            // Replace this URL with the API endpoint to fetch the newly added video
+            const response = await fetch('https://example.com/api/new-video');
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch video');
+            }
+
+            const videoData = await response.json();
+
+            // Assuming the video data comes in a format like: { id, title, url }
+            setPlaylistItems((prevItems) => [...prevItems, videoData]);
+        } catch (error) {
+            console.error('Error fetching video:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
 
   return {
     createPlaylist,
     page,
     playlists,
     loading,
+    playlistVideo,
     fetchPlaylists,
     loadPlaylists,
     handlePlaylistClick,
     playlistVideos,
+    addButton,
+    handleAddition,
+    addVdieos
     //handlePlaylistClick,
   };
  };

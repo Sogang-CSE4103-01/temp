@@ -48,17 +48,22 @@ const Main = (props) => {
 
 	const [isListAdditionOpen, setIsListAdditionOpen] = useState(false);  //playlist addition
 	const [isPlaylistSelected, setIsPlaylistSelected] = useState(false);
+	const [isAddingVideo, setIsAddingVideo] = useState(false);
 	const [title, setTitle] = useState('');
 
 	const {
 		createPlaylist,
 		page,
 		playlists,
+		playlistVideo,
 		//loading,
 		fetchPlaylists,
 		loadPlaylists,
 		handlePlaylistClick,
 		playlistVideos,
+		addButton,
+		handleAddition,
+		addVideos,
 	} = usePlaylist();
 	//const {createPlaylist} = Playlist(); 
 
@@ -95,10 +100,6 @@ const Main = (props) => {
 		},
 		[videoData]
 	);
-
-	const handleAddition = () => {
-		setIsListAdditionOpen(true);
-	};
 
 	const handlePopupConfirm = () => {
 		const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
@@ -157,7 +158,7 @@ const Main = (props) => {
 		</ImageItem>
 	));
 
-	const playlistItems = playlists.map(video => (
+	const playlistItems = playlistVideo.map(video => (
 		<ImageItem
 			inline
 			key={video.id}
@@ -172,6 +173,22 @@ const Main = (props) => {
 			{video.title} {/* 비디오 제목을 표시 */}
 		</ImageItem>
 	));
+
+	const selectableItems = (searchString.length === 0 ? videoData : filteredVideos).map(video => (
+        <ImageItem
+            inline
+            key={video.id}
+            label={video.title} // 비디오 제목을 레이블로 사용
+            src={video.thumbnail} // 비디오 썸네일
+            style={{
+                width: scaleToRem(768),
+                height: scaleToRem(588)
+            }}
+            onClick={() => handleAddition(video.id)} // 클릭 시 팝업 열기
+        >
+            {video.title} {/* 비디오 제목을 표시 */}
+        </ImageItem>
+    ));
 
 	const fvideoItems = filteredVideos.map(video => (
         <ImageItem
@@ -256,7 +273,8 @@ const Main = (props) => {
 									<ImageItem
 										inline
 										key={playlist.id}
-										label={playlist.title}
+										//label={playlist.title}
+										label = {" "}
 										style={{
 											width: scaleToRem(1024),
 											height: scaleToRem(200),
@@ -321,9 +339,40 @@ const Main = (props) => {
 
 
 					{/* 팝업 추가 */}
-					<Popup open={isPlaylistSelected} onClose={() => setIsPlaylistSelected(false)}>
+					<Popup open={isPlaylistSelected && !isAddingVideo} onClose={() => setIsPlaylistSelected(false)}>
+
+					<h2>Playlist</h2>
+
 						<Scroller style={{ maxHeight: '500px' }}>
+							
 							{playlistItems.length > 0 ? playlistItems : '비디오가 없습니다.'}
+
+							<Button style={{
+								//position: 'fixed', // Fix the button's position
+								//top: '20px', // Adjust the distance from the top of the screen
+								//left: '50%', // Center horizontally
+								//transform: 'translateX(-50%)', // Correct centering alignment
+								zIndex: 1000, // Ensure the button appears above the popup
+							}}
+							onClick={() => setIsAddingVideo(true)}
+							>Add video
+							</Button>
+						</Scroller>
+					</Popup>
+
+					<Popup open={isAddingVideo} onClose={() => setIsAddingVideo(false) && setIsPlaylistSelected(true)}>
+						<Scroller style={{maxHeight : '500px'}}>
+							{selectableItems.length > 0 ? selectableItems : '비디오가 없습니다.'}
+							<Button style={{
+								//position: 'fixed', // Fix the button's position
+								//top: '20px', // Adjust the distance from the top of the screen
+								//left: '50%', // Center horizontally
+								//transform: 'translateX(-50%)', // Correct centering alignment
+								zIndex: 1000, // Ensure the button appears above the popup
+							}}
+							onClick={() => addVideos() && setIsAddingVideo(true)}
+							>Add
+							</Button>
 						</Scroller>
 					</Popup>
 				

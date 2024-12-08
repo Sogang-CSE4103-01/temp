@@ -20,6 +20,7 @@ export const useMainState = () => {
     const [totalVideos, setTotalVideos] = useState(null);
 
     
+    /*
     // 로컬스토리지에서 저장된 비디오 데이터 로드
     useEffect(() => {
         const savedVideoData = localStorage.getItem('videoData');
@@ -33,7 +34,7 @@ export const useMainState = () => {
         if (videoData.length > 0) {
             localStorage.setItem('videoData', JSON.stringify(videoData)); // 비디오 데이터 로컬스토리지에 저장
         }
-    }, [videoData]);  
+    }, [videoData]);   */
 
     const fetchTotalVideos = useCallback(async () => {
         try {
