@@ -43,7 +43,15 @@ const Login = ({ onSubmit, onClose }) => {
     } = useLogOut();
 
     return (
-        <Panel>
+        <Panel
+            {...props}
+            style={{
+                backgroundImage: 'linear-gradient(to right, #00008b, #000000)', // 그라데이션 색상
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                height: '100%', // 패널 전체를 덮기 위해 높이 지정
+            }}
+        >
             <Header title={$L('Log In and Sign Up')} />
             <TabLayout>
                 {/* Log In Tab */}
