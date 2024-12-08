@@ -9,10 +9,17 @@ import { Button, Popup, InputField } from '@enact/sandstone'; // Assuming these 
 
   //const userId = getUserId();
 
-export  const createPlaylist = async (title) => {
+//export  const createPlaylist = async (title) => {
+
+ export  const usePlaylist = () => {   
     const userId = getUserId();
+    const [page, setPage] = useState(1);
+    const [playlists, setPlaylists] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [totalPlaylists, setTotalPlaylists] = useState(null); 
+    const size = 10;
 
-
+    const createPlaylist = async(title) => {
     if (!title) {
       // Prevent submitting if the title is empty
       //alert("Please enter a title for the playlist.");
@@ -47,6 +54,89 @@ export  const createPlaylist = async (title) => {
       //alert('An error occurred while creating the playlist.');
     }
   };
+
+
+  const fetchPlaylists = useCallback(async () => {
+    try {
+        setLoading(true); // 로딩 시작
+        //const userId = getUserId(); // 사용자 ID 가져오기
+        const response = await fetch(`${ADDR_}/api/getPlaylist/${userId}?page=${page}&size=${size}`);
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            setPlaylists((prev) => [...prev, ...data.playlists]); // 기존 데이터에 추가
+            console.log(`Fetched playlists for page ${page}:`, data.playlists);
+            console.log(data.size);
+        } else {
+            console.error(`Failed to fetch playlists for page ${page}`);
+        }
+    } catch (error) {
+        console.error('Error fetching playlists:', error);
+    } finally {
+        setLoading(false); // 로딩 완료
+    }
+}, []);
+
+const loadPlaylists = useCallback(() => {
+    //if (playlists.length < totalPlaylists) {
+    fetchPlaylists(page, size); // 현재 페이지와 크기로 데이터 요청
+    setPage((prevPage) => prevPage + 1); // 다음 페이지 설정
+    //}
+}, [page, size, totalPlaylists, playlists.length, fetchPlaylists]);
+
+/*
+    const fetchPlaylists = async (userId, page, size) => {
+        const response = await fetch(`${ADDR_}/api/getPlaylist?userId=${userId}&page=${page}&size=${size}`);
+        if (response.ok) {
+            const data = await response.json();
+            //setPlaylists(data.playlists || []);
+            setPlaylists((prevplaylists) => [...prevplaylists, ...data.playlists]);
+            console.log("fetch playlist");
+        } else {
+            console.error('Failed to fetch playlists');
+        }
+    }; 
+
+
+    useEffect(() => {
+        fetchPlaylists(userId, page, size);
+    }, [userId, page]);
+
+    const loadMorePlaylists = () => {
+        setPage((prevPage) => prevPage + 1);
+    }
+
+    const handlePlaylistClick = (id) => {
+        console.log("clicked playlist : ", id);
+    } */
+
+
+    useEffect(() => {
+        const initialize = async () => {
+            //await fetchTotalPlaylists(); // 총 플레이리스트 수 가져오기
+            await fetchPlaylists(page, size); // 첫 페이지 데이터 로드
+        };
+        initialize();
+    }, [fetchPlaylists, page, size]);    
+
+
+    const handlePlaylistClick = (id) => {
+        console.log('Clicked playlist ID:', id);
+    };
+
+
+  return {
+    createPlaylist,
+    page,
+    playlists,
+    loading,
+    fetchPlaylists,
+    loadPlaylists,
+    handlePlaylistClick,
+    //handlePlaylistClick,
+  };
+ };
+
 
   //return (
     //createPlaylist,

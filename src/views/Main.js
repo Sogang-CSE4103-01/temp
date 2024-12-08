@@ -17,7 +17,8 @@ import Popup from '@enact/sandstone/Popup'; // 팝업 컴포넌트 가져오기
 import { getUserId } from './address'; // config에서 setUserId 가져오기
 import { QRCodeCanvas } from 'qrcode.react'; // 또는 QRCodeSVG
 import { InputField } from '@enact/sandstone/Input';
-import {createPlaylist} from './playlist';
+//import {createPlaylist} from './playlist';
+import { usePlaylist } from './playlist';
 
 
 const tabsWithIcons = [
@@ -45,6 +46,14 @@ const Main = (props) => {
 	const [isListAdditionOpen, setIsListAdditionOpen] = useState(false);  //playlist addition
 	const [title, setTitle] = useState('');
 
+	const {
+		createPlaylist,
+		page,
+		playlists,
+		//loading,
+		fetchPlaylists,
+		loadPlaylists,
+		handlePlaylistClick,} = usePlaylist();
 	//const {createPlaylist} = Playlist(); 
 
 	const handleClick = useCallback(
@@ -134,6 +143,24 @@ const Main = (props) => {
 		</ImageItem>
 	));
 
+	/*
+	//const PlaylistItem = {
+	const PlaylistItems = playlists.map(playlist => (
+		<ImageItem
+			inline
+			key={playlist.id}
+			//label={video.title} // 비디오 제목을 레이블로 사용
+			//src={video.thumbnail} // 비디오 썸네일
+			style={{
+				width: scaleToRem(1024),
+				height: scaleToRem(200)
+			}}
+			//onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+		>
+			{playlist.title} 
+		</ImageItem>
+	)); */
+
     const generateRandomURL = () => {
 		const randomId = Math.floor(Math.random() * 100000); // 0~99999 사이의 랜덤 숫자
 		const randomUrl = `http://192.168.0.2:8080/register`;
@@ -160,6 +187,49 @@ const Main = (props) => {
 				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
 					{/*<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
 					<button onClick={() => setIsListAdditionOpen(true)}>add playlist</button> */}
+					
+					<div>
+						<h1>User Playlists</h1>
+						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+							{playlists.map((playlist) => (
+								<ImageItem
+									inline
+									key={playlist.id}
+									label={playlist.title}
+									style={{
+										width: scaleToRem(1024),
+										height: scaleToRem(200),
+									}}
+									onClick={() => handlePlaylistClick(playlist.id)}
+								>
+									{playlist.title}
+								</ImageItem>
+							))}
+						</div>
+						{loading && <p>Loading...</p>}
+						<button onClick={loadPlaylists} disabled={loading}>
+							{loading ? 'Loading...' : 'Load More'}
+						</button>
+					</div>
+
+					{/*}
+					<div style={{ display: 'flex', overflowX: 'auto', gap: scaleToRem(100) }}>
+						{PlaylistItems} {/* Render the array directly 
+					</div> */}
+
+
+					{/*
+					<div style={{ display: 'flex', overflowX: 'auto', gap: scaleToRem(24) }}>
+						<PlaylistItems/>
+						
+						{videoData.map(video => (
+							<PlaylistItems
+							//key={video.id}
+							//video={video}
+							//onClick={() => onVideoClick(video.id)}
+							/>
+						))}  
+					</div> */}
 
 					
 					<div style={{ textAlign: 'center', padding: '20px' }}>
