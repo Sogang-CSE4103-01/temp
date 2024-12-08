@@ -2,22 +2,20 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ADDR_ } from './address';
 import { getUserId } from './address';
 import { Button, Popup, InputField } from '@enact/sandstone'; // Assuming these components are being used
-
-//const Playlist = () => {
-  //const [isListAdditionOpen, setIsListAdditionOpen] = useState(false);
-  //const [title, setTitle] = useState(''); // State for the playlist title
-
-  //const userId = getUserId();
-
-//export  const createPlaylist = async (title) => {
+import { useMainState } from './MainState';
+import defaultThumbnail from '../assets/3.jpg'; 
 
  export  const usePlaylist = () => {   
     const userId = getUserId();
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(0);
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(false);
     const [totalPlaylists, setTotalPlaylists] = useState(null); 
+    const [pid, setPid] = useState(0);
     const size = 10;
+    //const playlist_id = 0;
+
+    const { loadWatchTime, saveWatchTime, videoData } = useMainState(); 
 
     const createPlaylist = async(title) => {
     if (!title) {
@@ -64,7 +62,17 @@ import { Button, Popup, InputField } from '@enact/sandstone'; // Assuming these 
         if (response.ok) {
             const data = await response.json();
             console.log(data);
-            setPlaylists((prev) => [...prev, ...data.playlists]); // 기존 데이터에 추가
+
+            //setPlaylists((prev) => [...prev, ...data.playlists]); // 기존 데이터에 추가
+
+            setPlaylists((prev) => {
+              // Prevent duplicate playlist entries
+              const newPlaylists = data.playlists.filter(
+                  (playlist) => !prev.some((p) => p.id === playlist.id)
+              );
+              return [...prev, ...newPlaylists];
+            });
+
             console.log(`Fetched playlists for page ${page}:`, data.playlists);
             console.log(data.size);
         } else {
@@ -84,45 +92,65 @@ const loadPlaylists = useCallback(() => {
     //}
 }, [page, size, totalPlaylists, playlists.length, fetchPlaylists]);
 
-/*
-    const fetchPlaylists = async (userId, page, size) => {
-        const response = await fetch(`${ADDR_}/api/getPlaylist?userId=${userId}&page=${page}&size=${size}`);
+
+  useEffect(() => {
+    const initialize = async () => {
+      //await fetchTotalPlaylists(); // 총 플레이리스트 수 가져오기
+      await fetchPlaylists(page, size); // 첫 페이지 데이터 로드
+    };
+   initialize();
+  }, [fetchPlaylists, page, size]);    
+
+
+  const handlePlaylistClick = (id) => {
+    console.log('Clicked playlist ID:', id);
+    setPid(id);
+    //p_id = id;
+    console.log(pid);
+    //playlistVideos();
+  };
+
+  useEffect(() => {
+    if (pid !== null){
+      console.log('updated : ', pid);
+      playlistVideos();
+    }
+  }, [pid]);
+
+
+  const playlistVideos = useCallback(async () => {
+    setLoading(true);
+    try {
+        console.log("id:", pid);
+        const response = await fetch(`${ADDR_}/api/playlist/${pid}`);
         if (response.ok) {
             const data = await response.json();
-            //setPlaylists(data.playlists || []);
-            setPlaylists((prevplaylists) => [...prevplaylists, ...data.playlists]);
-            console.log("fetch playlist");
+            console.log(data);
+            // API 응답에서 시청 기록이 있는 비디오 필터링
+            const playlistVideos = data.map((record) => ({
+                id: record.video.id,
+                title: record.video.title,
+                //title : `${ADDR_}/api/video_title/${id}`,
+                //watchedTime: record.watchedTime,
+                //watchedAt: record.watchedAt,
+                watchedTime : `${ADDR_}/api/videowatched/${record.playlist.user.id}/${record.video.id}.mp4`,
+                user: {
+                    id: record.playlist.user.id,
+                    username: record.playlist.user.username,
+                },
+                thumbnail: `${ADDR_}/api/thumbnail/${record.video.id}.jpg` || defaultThumbnail,
+                src: `${ADDR_}/api/video/${record.video.id}.mp4`,
+            }));
+            setPlaylists(playlistVideos);
         } else {
-            console.error('Failed to fetch playlists');
+            console.error('Failed to fetch watched videos');
         }
-    }; 
-
-
-    useEffect(() => {
-        fetchPlaylists(userId, page, size);
-    }, [userId, page]);
-
-    const loadMorePlaylists = () => {
-        setPage((prevPage) => prevPage + 1);
+    } catch (error) {
+        console.error('Error fetching watched videos:', error);
+    } finally {
+        setLoading(false);
     }
-
-    const handlePlaylistClick = (id) => {
-        console.log("clicked playlist : ", id);
-    } */
-
-
-    useEffect(() => {
-        const initialize = async () => {
-            //await fetchTotalPlaylists(); // 총 플레이리스트 수 가져오기
-            await fetchPlaylists(page, size); // 첫 페이지 데이터 로드
-        };
-        initialize();
-    }, [fetchPlaylists, page, size]);    
-
-
-    const handlePlaylistClick = (id) => {
-        console.log('Clicked playlist ID:', id);
-    };
+  });
 
 
   return {
@@ -133,29 +161,8 @@ const loadPlaylists = useCallback(() => {
     fetchPlaylists,
     loadPlaylists,
     handlePlaylistClick,
+    playlistVideos,
     //handlePlaylistClick,
   };
  };
 
-
-  //return (
-    //createPlaylist,
-    {/*
-    <div>
-      <Button onClick={() => setIsListAdditionOpen(true)}>Add New Playlist</Button>
-      <Popup open={isListAdditionOpen} onClose={() => setIsListAdditionOpen(false)}>
-        <h2>Create a New Playlist</h2>
-        <InputField
-          placeholder="Enter the title..."
-          value={title}
-          onChange={(e) => setTitle(e.value)}
-          style={{ marginTop: '10px' }}
-        />
-        <Button onClick={createPlaylist}>Create Playlist</Button>
-        <Button onClick={() => setIsListAdditionOpen(false)}>Cancel</Button>
-      </Popup>
-    </div> */}
-  //);
-//};
-
-//export default Playlist;

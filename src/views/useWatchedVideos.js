@@ -13,6 +13,7 @@ export const useWatchedVideos = (userId) => {
             const response = await fetch(`${ADDR_}/api/videowatched/${userId}`);
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 // API 응답에서 시청 기록이 있는 비디오 필터링
                 const filteredVideos = data.videos.map((record) => ({
                     id: record.video.id,

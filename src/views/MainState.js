@@ -89,6 +89,15 @@ export const useMainState = () => {
         return videos;
     };
 
+     // 특정 문자열로 필터링된 비디오 생성 함수
+     const generateFilteredVideoData = async (searchString) => {
+        const allVideos = await generateVideoData(1, totalVideos); // 모든 비디오 데이터 가져오기
+        const filteredVideos = allVideos.filter(video => 
+            video.title.includes(searchString) // 제목에 특정 문자열이 포함되는지 확인
+        );
+        return filteredVideos;
+    };
+
     /*
     useEffect(() => {
         if (totalVideos > 0){
@@ -188,21 +197,6 @@ export const useMainState = () => {
         openPopup(false);
     }, []);
 
-    // 시청 시간 저장
-    /*const saveWatchTime = (videoId, time) => {
-        setVideoData((prevData) =>
-            prevData.map((video) =>
-                video.id === videoId ? { ...video, watchTime: time } : video
-            )
-        );
-
-        // localStorage에 저장
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(`watchTime_${videoId}`, time);
-        }
-
-        console.log(`Watch time for video ${videoId} saved: ${time}`);
-    };*/
     const saveWatchTime = async (videoId, userId, watchedTime) => {
         console.log(`Saving watch time using query parameters: videoId=${videoId}, userId=${userId}, watchedTime=${watchedTime}`);
     
@@ -231,20 +225,6 @@ export const useMainState = () => {
         }
     };
     
-    
-
-    
-
-
-    // 시청 시간 로드
-    /*const loadWatchTime = (videoId) => {
-        if (typeof window !== 'undefined') {
-            const savedTime = localStorage.getItem(`watchTime_${videoId}`);
-            return savedTime ? parseInt(savedTime, 10) : 0; // 저장된 시간이 없으면 0 반환
-        }
-        return 0;
-    };*/
-
 
     const loadWatchTime = async (videoId) => {
         const userId = getUserId(); // 사용자 ID 가져오기
@@ -285,5 +265,6 @@ export const useMainState = () => {
         loadWatchTime,
         loading, // 로딩 상태 반환
         totalVideos,
+        generateFilteredVideoData,
     };
 };
