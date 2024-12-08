@@ -7,7 +7,8 @@ export const useLogOut = () => {
     const [isLoggedOut, setIsLoggedOut] = useState(false);
     const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
-
+    const { setPanelData } = useContext(PanelContext);
+    
     const handleLogOut = useCallback(() => {
         setIsLoggedOut(true);
 
@@ -17,7 +18,7 @@ export const useLogOut = () => {
         setUsername('');
         setPassword('');
 
-        window.location.href = '/login';
+        setPanelData([{ name: 'login', data: {} }]);
 	}, []);
 
     return {

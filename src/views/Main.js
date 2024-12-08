@@ -47,14 +47,11 @@ const Main = (props) => {
     // 필터링된 비디오 가져오기
     const fetchFilteredVideos = async () => {
         const filtered = await generateFilteredVideoData(searchString);
-        console.log("필터된 영상은", filtered);
         setFilteredVideos(filtered); // 필터링된 비디오 저장
-		console.log("필터된 영상은", filteredVideos);
     };
 
-	useEffect(() => {
-		console.log("업데이트된 필터된 영상은", filteredVideos);
-	}, [filteredVideos]);
+	/*useEffect(() => {
+	}, [filteredVideos]);*/
 
 
 	const handleSearchChange = (event) => {
