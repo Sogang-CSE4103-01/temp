@@ -5,6 +5,7 @@ import Scroller from '@enact/sandstone/Scroller';
 import Button from '@enact/sandstone/Button';
 import Item from '@enact/sandstone/Item';
 import Icon from '@enact/sandstone/Icon';
+import Input, { InputField } from '@enact/sandstone/Input'; // Input 컴포넌트 가져오기
 import TabLayout, { Tab } from '@enact/sandstone/TabLayout';
 import { Header, Panel } from '@enact/sandstone/Panels';
 import { scaleToRem } from '@enact/ui/resolution';
@@ -31,7 +32,7 @@ const tabsWithIcons = [
 
 const Main = (props) => {
 	const { setPanelData } = useContext(PanelContext);
-	const { videoData, loadWatchTime, loadMore, loading } = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
+	const { videoData, loadWatchTime, loadMore, loading, generateFilteredVideoData} = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
 	const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
 	const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
 	const userId = getUserId();
@@ -39,7 +40,36 @@ const Main = (props) => {
 	const { watchedVideos, fetchWatchedVideos } = useWatchedVideos(userId); // 시청 중인 비디오 가져오기
 	const [activeTab, setActiveTab] = useState(0); // 활성 탭 상태 관리
     const [qrUrl, setQrUrl] = useState(''); //QR 코드용
+	const [filteredVideos, setFilteredVideos] = useState([]); // 필터링된 비디오 저장
+	const [searchString, setSearchString] = useState(''); // 검색 문자열 상태 관리
 
+
+    // 필터링된 비디오 가져오기
+    const fetchFilteredVideos = async () => {
+        const filtered = await generateFilteredVideoData(searchString);
+        console.log("필터된 영상은", filtered);
+        setFilteredVideos(filtered); // 필터링된 비디오 저장
+		console.log("필터된 영상은", filteredVideos);
+    };
+
+	useEffect(() => {
+		console.log("업데이트된 필터된 영상은", filteredVideos);
+	}, [filteredVideos]);
+
+
+	const handleSearchChange = (event) => {
+		const value = event.value; // event.value를 사용
+		setSearchString(value); // 입력된 검색 문자열 상태 업데이트
+	
+		if (value) {
+			generateFilteredVideoData(value).then(filtered => {
+				setFilteredVideos(filtered); // 필터링된 비디오 저장
+			});
+		} else {
+			setFilteredVideos([]); // 입력이 없을 경우 필터링된 비디오 초기화
+		}
+	};
+	
 	const handleClick = useCallback(
 		index => () => {
 			setSelectedVideo(videoData[index]); // 선택된 비디오 설정
@@ -73,22 +103,23 @@ const Main = (props) => {
 	};
 
 
+
 	// 비디오 컴포넌트 렌더링
-	const videoItems = videoData.map(video => (
-		<ImageItem
-			inline
-			key={video.id}
-			label={video.title} // 비디오 제목을 레이블로 사용
-			src={video.thumbnail} // 비디오 썸네일
-			style={{
-				width: scaleToRem(768),
-				height: scaleToRem(588)
-			}}
-			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
-		>
-			{video.title} {/* 비디오 제목을 표시 */}
-		</ImageItem>
-	));
+	const videoItems = (searchString.length === 0 ? videoData : filteredVideos).map(video => (
+        <ImageItem
+            inline
+            key={video.id}
+            label={video.title} // 비디오 제목을 레이블로 사용
+            src={video.thumbnail} // 비디오 썸네일
+            style={{
+                width: scaleToRem(768),
+                height: scaleToRem(588)
+            }}
+            onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+        >
+            {video.title} {/* 비디오 제목을 표시 */}
+        </ImageItem>
+    ));
 
 	const wvideoItems = watchedVideos.map(video => (
 		<ImageItem
@@ -105,6 +136,23 @@ const Main = (props) => {
 			{video.title} {/* 비디오 제목을 표시 */}
 		</ImageItem>
 	));
+
+	const fvideoItems = filteredVideos.map(video => (
+        <ImageItem
+            inline
+            key={video.id}
+            label={video.title} // 비디오 제목을 레이블로 사용
+            src={video.thumbnail} // 비디오 썸네일
+            style={{
+				width: scaleToRem(768),
+				height: scaleToRem(588)
+			}}
+			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+        >
+            {video.title} {/* 비디오 제목을 표시 */}
+        </ImageItem>
+    ));
+
 
 	const userVideoItems = videoData.filter(video => video.id % userId === 0).map(video => (
 		<ImageItem
@@ -132,21 +180,37 @@ const Main = (props) => {
 	console.log("userid for main panner", userId);
 
 	return (
-		<Panel {...props}>
-			<Header title="Sandstone TabLayout" subtitle={`user ${userId}`} />
+		<Panel
+			{...props}
+			style={{
+				backgroundImage: 'linear-gradient(to bottom, #00006a, #000000)', // 어두운 파랑(#00008b)에서 검정(#000000)으로 그라데이션
+				backgroundSize: 'cover',
+				backgroundRepeat: 'no-repeat',
+				height: '100%', // 패널 전체를 덮기 위해 높이 지정
+			}}
+		>
+			<Header title="LLG" subtitle={`user ${userId}`} />
 			<TabLayout >
-				<Tab title={tabsWithIcons[0].title} icon={tabsWithIcons[0].icon}>
-					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}
-						<Button onClick={loadMore} disabled={loading}>
-							{loading ? 'Loading...' : 'More'}
-						</Button>
-					</Scroller>
-				</Tab>
+			<Tab title={tabsWithIcons[0].title} icon={tabsWithIcons[0].icon}>
+                    <InputField
+                        type="text"
+                        placeholder="검색"
+                        value={searchString}
+                        onChange={handleSearchChange}
+                        
+                    />
+                    <Scroller>
+                        {videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}
+                        <Button onClick={loadMore} disabled={loading}>
+                            {loading ? 'Loading...' : 'More'}
+                        </Button>
+                    </Scroller>
+                </Tab>
 				<Tab title={tabsWithIcons[5].title} icon={tabsWithIcons[5].icon} onTabClick={() => fetchWatchedVideos()}>
 					<Scroller>{wvideoItems.length > 0 ? wvideoItems : '비디오가 없습니다.'}</Scroller>
 				</Tab>
-				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
-					<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
+				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon} onTabClick={() => fetchFilteredVideos()}>
+					<Scroller>{fvideoItems.length > 0 ? fvideoItems : '비디오가 없습니다.'}</Scroller>
 				</Tab>
 
                 <Tab title={tabsWithIcons[7].title} icon={tabsWithIcons[7].icon}>

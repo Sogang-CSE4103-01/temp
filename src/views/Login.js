@@ -44,9 +44,8 @@ const Login = ({ onSubmit, onClose }) => {
 
     return (
         <Panel
-            {...props}
             style={{
-                backgroundImage: 'linear-gradient(to right, #00008b, #000000)', // 그라데이션 색상
+                backgroundImage: 'linear-gradient(to bottom, #00006a, #000000)', // 어두운 파랑(#00008b)에서 검정(#000000)으로 그라데이션
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
                 height: '100%', // 패널 전체를 덮기 위해 높이 지정
