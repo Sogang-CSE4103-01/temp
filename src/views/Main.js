@@ -1,0 +1,373 @@
+/* eslint-disable */
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import ImageItem from '@enact/sandstone/ImageItem';
+import Scroller from '@enact/sandstone/Scroller';
+import Button from '@enact/sandstone/Button';
+import Item from '@enact/sandstone/Item';
+import Icon from '@enact/sandstone/Icon';
+import Input, { InputField } from '@enact/sandstone/Input'; // Input 컴포넌트 가져오기
+import TabLayout, { Tab } from '@enact/sandstone/TabLayout';
+import { Header, Panel } from '@enact/sandstone/Panels';
+import { scaleToRem } from '@enact/ui/resolution';
+import { useMainState } from './MainState'; // 비디오 데이터를 가져오기 위한 훅
+import { useWatchedVideos } from './useWatchedVideos';
+import SystemMonitor from './systemMonitor';
+import useLogOut from './LogoutState';
+import { PanelContext } from './Context'; // PanelContext 가져오기
+import Popup from '@enact/sandstone/Popup'; // 팝업 컴포넌트 가져오기
+import { getUserId } from './address'; // config에서 setUserId 가져오기
+import { QRCodeCanvas } from 'qrcode.react'; // 또는 QRCodeSVG
+//import { InputField } from '@enact/sandstone/Input';
+//import {createPlaylist} from './playlist';
+import { usePlaylist } from './playlist';
+
+
+const tabsWithIcons = [
+	{ title: 'Home', icon: 'home' },
+	{ title: 'Button', icon: 'gear' },
+	{ title: 'Item', icon: 'trash' },
+	{ title: "ProcState", icon: 'tvguidefvp' },
+	{ title: "Log Out", icon: "logout" },
+	{ title: "Watching video", icon: "liveplay" },
+	{ title: "Playlist", icon: "demosync" },
+    { title: "Upload", icon: "folderupper"},
+];
+
+const Main = (props) => {
+	const { setPanelData } = useContext(PanelContext);
+	const { videoData, loadWatchTime, loadMore, loading, generateFilteredVideoData} = useMainState(); // 비디오 데이터 가져오기 및 시청 시간 로드
+	const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 상태 관리
+	const [selectedVideo, setSelectedVideo] = useState(null); // 선택된 비디오 관리
+	const userId = getUserId();
+	console.log("현재유저", userId);
+	const { watchedVideos, fetchWatchedVideos } = useWatchedVideos(userId); // 시청 중인 비디오 가져오기
+	const [activeTab, setActiveTab] = useState(0); // 활성 탭 상태 관리
+    const [qrUrl, setQrUrl] = useState(''); //QR 코드용
+	const [filteredVideos, setFilteredVideos] = useState([]); // 필터링된 비디오 저장
+	const [searchString, setSearchString] = useState(''); // 검색 문자열 상태 관리
+
+	const [isListAdditionOpen, setIsListAdditionOpen] = useState(false);  //playlist addition
+	const [isPlaylistSelected, setIsPlaylistSelected] = useState(false);
+	const [title, setTitle] = useState('');
+
+	const {
+		createPlaylist,
+		page,
+		playlists,
+		//loading,
+		fetchPlaylists,
+		loadPlaylists,
+		handlePlaylistClick,
+		playlistVideos,
+	} = usePlaylist();
+	//const {createPlaylist} = Playlist(); 
+
+    // 필터링된 비디오 가져오기
+    const fetchFilteredVideos = async () => {
+        const filtered = await generateFilteredVideoData(searchString);
+        console.log("필터된 영상은", filtered);
+        setFilteredVideos(filtered); // 필터링된 비디오 저장
+		console.log("필터된 영상은", filteredVideos);
+    };
+
+	useEffect(() => {
+		console.log("업데이트된 필터된 영상은", filteredVideos);
+	}, [filteredVideos]);
+
+
+	const handleSearchChange = (event) => {
+		const value = event.value; // event.value를 사용
+		setSearchString(value); // 입력된 검색 문자열 상태 업데이트
+	
+		if (value) {
+			generateFilteredVideoData(value).then(filtered => {
+				setFilteredVideos(filtered); // 필터링된 비디오 저장
+			});
+		} else {
+			setFilteredVideos([]); // 입력이 없을 경우 필터링된 비디오 초기화
+		}
+	};
+	
+	const handleClick = useCallback(
+		index => () => {
+			setSelectedVideo(videoData[index]); // 선택된 비디오 설정
+			setIsPopupOpen(true); // 팝업 열기
+		},
+		[videoData]
+	);
+
+	const handleAddition = () => {
+		setIsListAdditionOpen(true);
+	};
+
+	const handlePopupConfirm = () => {
+		const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
+		const startTime = 1; // 시청 시간이 있다면 1, 없다면 0
+		console.log("aaa", startTime);
+		// 비디오 재생 패널로 이동
+		setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo, startTime } }]);
+		setIsPopupOpen(false); // 팝업 닫기
+	};
+
+	const {
+		isLoggedOut,
+		setUsername,
+		setPassword,
+		handleLogOut
+	} = useLogOut();
+
+	const handlePopupCancel = () => {
+		// 비디오를 처음부터 재생
+		const startTime = 0;
+		console.log("bbb", startTime);
+		setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo, startTime } }]);
+		setIsPopupOpen(false); // 팝업 닫기
+	};
+
+	// 비디오 컴포넌트 렌더링
+	const videoItems = (searchString.length === 0 ? videoData : filteredVideos).map(video => (
+        <ImageItem
+            inline
+            key={video.id}
+            label={video.title} // 비디오 제목을 레이블로 사용
+            src={video.thumbnail} // 비디오 썸네일
+            style={{
+                width: scaleToRem(768),
+                height: scaleToRem(588)
+            }}
+            onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+        >
+            {video.title} {/* 비디오 제목을 표시 */}
+        </ImageItem>
+    ));
+
+	const wvideoItems = watchedVideos.map(video => (
+		<ImageItem
+			inline
+			key={video.id}
+			label={video.title} // 비디오 제목을 레이블로 사용
+			src={video.thumbnail} // 비디오 썸네일
+			style={{
+				width: scaleToRem(768),
+				height: scaleToRem(588)
+			}}
+			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+		>
+			{video.title} {/* 비디오 제목을 표시 */}
+		</ImageItem>
+	));
+
+	const playlistItems = playlists.map(video => (
+		<ImageItem
+			inline
+			key={video.id}
+			label={video.title} // 비디오 제목을 레이블로 사용
+			src={video.thumbnail} // 비디오 썸네일
+			style={{
+				width: scaleToRem(768),
+				height: scaleToRem(588)
+			}}
+			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+		>
+			{video.title} {/* 비디오 제목을 표시 */}
+		</ImageItem>
+	));
+
+	const fvideoItems = filteredVideos.map(video => (
+        <ImageItem
+            inline
+            key={video.id}
+            label={video.title} // 비디오 제목을 레이블로 사용
+            src={video.thumbnail} // 비디오 썸네일
+            style={{
+				width: scaleToRem(768),
+				height: scaleToRem(588)
+			}}
+			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+        >
+            {video.title} {/* 비디오 제목을 표시 */}
+        </ImageItem>
+    ));
+
+	const userVideoItems = videoData.filter(video => video.id % userId === 0).map(video => (
+		<ImageItem
+			inline
+			key={video.id}
+			label={video.title}
+			src={video.thumbnail}
+			style={{
+				width: scaleToRem(768),
+				height: scaleToRem(588)
+			}}
+			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
+		>
+			{video.title}
+		</ImageItem>
+	));
+
+    const generateRandomURL = () => {
+		const randomId = Math.floor(Math.random() * 100000); // 0~99999 사이의 랜덤 숫자
+		const randomUrl = `http://192.168.0.23:8080/register`;
+		setQrUrl(randomUrl);
+        console.log(qrUrl, setQrUrl);
+	};
+
+	console.log("userid for main panner", userId);
+
+	return (
+		<Panel
+			{...props}
+			style={{
+				backgroundImage: 'linear-gradient(to bottom, #00006a, #000000)', // 어두운 파랑(#00008b)에서 검정(#000000)으로 그라데이션
+				backgroundSize: 'cover',
+				backgroundRepeat: 'no-repeat',
+				height: '100%', // 패널 전체를 덮기 위해 높이 지정
+			}}
+		>
+			<Header title="LLG" subtitle={`user ${userId}`} />
+			<TabLayout >
+			<Tab title={tabsWithIcons[0].title} icon={tabsWithIcons[0].icon}>
+                    <InputField
+                        type="text"
+                        placeholder="검색"
+                        value={searchString}
+                        onChange={handleSearchChange}
+                        
+                    />
+                    <Scroller>
+                        {videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}
+                        <Button onClick={loadMore} disabled={loading}>
+                            {loading ? 'Loading...' : 'More'}
+                        </Button>
+                    </Scroller>
+                </Tab>
+				<Tab title={tabsWithIcons[5].title} icon={tabsWithIcons[5].icon} onTabClick={() => fetchWatchedVideos()}>
+					<Scroller>{wvideoItems.length > 0 ? wvideoItems : '비디오가 없습니다.'}</Scroller>
+				</Tab>
+
+				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
+					{/*<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
+					<button onClick={() => setIsListAdditionOpen(true)}>add playlist</button> */}
+					<h1>User {userId}'s Playlists</h1>
+
+					<Scroller style={{ maxHeight: '410px' }} >	
+						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+								{playlists.map((playlist) => (
+									<ImageItem
+										inline
+										key={playlist.id}
+										label={playlist.title}
+										style={{
+											width: scaleToRem(1024),
+											height: scaleToRem(200),
+										}}
+										onClick={() => {
+											setIsPlaylistSelected(true);
+											handlePlaylistClick(playlist.id);
+										}}
+									>
+										{playlist.title}
+									</ImageItem>
+								))}
+						</div>
+					</Scroller>
+
+					
+					<div style={{ textAlign: 'center'}}>
+						<h1> </h1>
+
+						{(!isPlaylistSelected && !isListAdditionOpen) && (
+							<>
+							{loading && <p>Loading...</p>}
+								<Button 
+									onClick={loadPlaylists} 
+									disabled={loading} 
+									//style={{ minWidth: '200px', height: '48px', fontSize: '18px', margin: '10px 0' }}
+								>
+									{loading ? 'Loading...' : 'Load More'}
+								</Button>
+							{/*
+							{loading && <p>Loading...</p>}
+								<button onClick={loadPlaylists} disabled={loading}>
+									{loading ? 'Loading...' : 'Load More'}
+								</button> */}
+
+							<Button onClick={() => setIsListAdditionOpen(true)}>Add New Playlist</Button>
+							</>
+						)}
+					</div>
+
+					<Popup open={isListAdditionOpen} onClose={() => setIsListAdditionOpen(false)}>
+						<h2>Create a New Playlist</h2>
+
+						<InputField
+							placeholder="enter the title..."
+							value={title}
+							onChange={(e) => setTitle(e.value)} // 댓글 상태 업데이트
+							style={{ marginTop: '10px' }} // 입력창 위 여백
+						/> 
+						
+						<Button onClick={() => {
+							// Handle the playlist creation logic here
+							console.log('New playlist created!');
+							createPlaylist(title);
+							console.log('calling create playlist');
+							setIsListAdditionOpen(false); // Close the popup
+						}}>
+							Yes
+						</Button> 
+						<Button onClick={() => setIsListAdditionOpen(false)}>Cancel</Button> 
+					</Popup> 
+
+
+					{/* 팝업 추가 */}
+					<Popup open={isPlaylistSelected} onClose={() => setIsPlaylistSelected(false)}>
+						<Scroller style={{ maxHeight: '500px' }}>
+							{playlistItems.length > 0 ? playlistItems : '비디오가 없습니다.'}
+						</Scroller>
+					</Popup>
+				
+				{/*
+				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon} onTabClick={() => fetchFilteredVideos()}>
+					<Scroller>{fvideoItems.length > 0 ? fvideoItems : '비디오가 없습니다.'}</Scroller> */}
+				</Tab>
+
+                <Tab title={tabsWithIcons[7].title} icon={tabsWithIcons[7].icon}>
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                        <Button onClick={generateRandomURL}>임의 URL QR 코드 생성</Button>
+                        {qrUrl ? (
+                            <div style={{ marginTop: '20px' }}>
+                                <p>생성된 URL: {qrUrl}</p>
+                                <QRCodeCanvas value={qrUrl} size={256} />
+                            </div>
+                        ) : (
+                            <p>QR 코드를 생성하려면 버튼을 클릭하세요.</p>
+                        )}
+                    </div>
+                </Tab>
+
+				<Tab title={tabsWithIcons[3].title} icon={tabsWithIcons[3].icon}>
+					<SystemMonitor />
+				</Tab>
+				<Tab title={tabsWithIcons[4].title} icon={tabsWithIcons[4].icon}>
+					<Button onClick={handleLogOut}>
+						Log Out
+					</Button>
+				</Tab>
+			</TabLayout>
+
+			{/* 팝업 추가 */}
+			<Popup open={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
+				<h2>이전 시청 기록부터 보시겠습니까?
+					<h5 style={{ fontSize: '0.8rem', margin: 0 }}>
+						'아니오'를 선택할 경우 시청기록이 저장되지 않습니다,
+					</h5>
+				</h2>
+				<Button onClick={handlePopupConfirm}>예</Button>
+				<Button onClick={handlePopupCancel}>아니오</Button>
+			</Popup>
+		</Panel>
+	);
+};
+
+export default Main;
