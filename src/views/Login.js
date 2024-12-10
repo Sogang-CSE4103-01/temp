@@ -41,14 +41,14 @@ const Login = ({ onSubmit, onClose }) => {
         setPassword,
         handleLogOut,
     } = useLogOut();
-
+    
     return (
         <Panel
             style={{
                 backgroundImage: 'linear-gradient(to bottom, #00006a, #000000)', // 어두운 파랑(#00008b)에서 검정(#000000)으로 그라데이션
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
-                height: '100%', // 패널 전체를 덮기 위해 높이 지정
+                height: '100%', 
             }}
         
         >
@@ -103,6 +103,7 @@ const Login = ({ onSubmit, onClose }) => {
                             onChange={handleSignupPasswordChange}
                             className={css2.inputField}
                         />
+                        
                         <Button onClick={handleSignup} size="small" className={css.button}>
                             {$L('register')}
                         </Button>
@@ -111,8 +112,8 @@ const Login = ({ onSubmit, onClose }) => {
 
                 {/* Log Out Tab */}
                 <Tab title={$L('Log Out')}>
-                    <div className={css2.logoutContainer}>
-                        <BodyText>{$L('로그아웃하려면 아래 버튼을 클릭하세요.')}</BodyText>
+                    <div className={css.logoutContainer}>
+                        <BodyText className={css.title}>{$L('Click the Log Out button if you want to quit')}</BodyText>
                         <Button onClick={handleLogOut} className={css2.logoutButton}>
                             Log Out
                         </Button>

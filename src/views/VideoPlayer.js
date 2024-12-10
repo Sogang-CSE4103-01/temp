@@ -277,7 +277,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                         <Button onClick={() => { 
                             setIsPopupOpen(true);
                             //fetchComments();
-                            }}>댓글</Button> {/* 팝업 버튼 추가 */}
+                            }}>Comments</Button> {/* 팝업 버튼 추가 */}
                         <Button onClick={() => setIsBotOpen(true)}>챗봇</Button> 
                         <Button onClick={() => {
                             const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
@@ -307,7 +307,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                                 >
                                     <div style={{ fontSize: '0.9rem', textAlign: 'center' }}>{v.title}</div>
                                 </ImageItem>
-                            )) : <div>비디오가 없습니다.</div>}
+                            )) : <div>No Videos</div>}
                         </Scroller>
                     </MediaControls>
                     
@@ -340,7 +340,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                             </div>
                         ))
                     ) : (
-                        <div>댓글이 없습니다.</div>
+                        <div>No Comments</div>
                     )}
                 </div>
 
@@ -369,7 +369,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     )) : <div>_</div>} */}
                 </Scroller>
                 <InputField
-                    placeholder="댓글을 입력하세요..."
+                    placeholder="type the comment..."
                     value={comment}
                     onChange={(e) => setComment(e.value)} // 댓글 상태 업데이트
                     style={{ marginTop: '10px' }} // 입력창 위 여백
@@ -427,7 +427,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 onChange={(e) => setComment(e.value)} // 메시지 상태 업데이트
                 style={{ marginTop: '10px', width: '80%' }} // 입력창 위 여백
                 />
-                <Button onClick={handleSendMessage} size="small">전송</Button>
+                <Button onClick={handleSendMessage} size="small">Send</Button>
             </Popup>
         </Panel>
     );

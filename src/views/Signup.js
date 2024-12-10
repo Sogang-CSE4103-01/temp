@@ -32,11 +32,12 @@ const Signup = () => {
                     className={css.inputField}
                 />
                 <Button onClick={handleSignup} className={css.signupButton}>
-                    {$L('register')}
+                    {$L('register')} 
                 </Button>
             </div>
         </Panel>
     );
-};
+};  
+
 
 export default Signup;

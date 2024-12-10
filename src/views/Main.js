@@ -22,6 +22,9 @@ import { QRCodeCanvas } from 'qrcode.react'; // 또는 QRCodeSVG
 //import {createPlaylist} from './playlist';
 import { usePlaylist } from './playlist';
 import Status from './statusCheck';
+import css from './Login.module.less';
+import BodyText from '@enact/sandstone/BodyText';
+import $L from '@enact/i18n/$L';
 
 const tabsWithIcons = [
 	{ title: 'Home', icon: 'home' },
@@ -254,14 +257,14 @@ const Main = (props) => {
                         
                     />
                     <Scroller>
-                        {videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}
+                        {videoItems.length > 0 ? videoItems : 'No Videos'}
                         <Button onClick={loadMore} disabled={loading}>
                             {loading ? 'Loading...' : 'More'}
                         </Button>
                     </Scroller>
                 </Tab>
 				<Tab title={tabsWithIcons[5].title} icon={tabsWithIcons[5].icon} onTabClick={() => fetchWatchedVideos()}>
-					<Scroller>{wvideoItems.length > 0 ? wvideoItems : '비디오가 없습니다.'}</Scroller>
+					<Scroller>{wvideoItems.length > 0 ? wvideoItems : 'No Videos'}</Scroller>
 				</Tab>
 
 				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
@@ -348,7 +351,7 @@ const Main = (props) => {
 
 						<Scroller style={{ maxHeight: '500px' }}>
 							
-							{playlistItems.length > 0 ? playlistItems : '비디오가 없습니다.'}
+							{playlistItems.length > 0 ? playlistItems : 'No Videos'}
 
 							<Button style={{
 								//position: 'fixed', // Fix the button's position
@@ -365,7 +368,7 @@ const Main = (props) => {
 
 					<Popup open={isAddingVideo} onClose={() => setIsAddingVideo(false) && setIsPlaylistSelected(true)}>
 						<Scroller style={{maxHeight : '500px'}}>
-							{selectableItems.length > 0 ? selectableItems : '비디오가 없습니다.'}
+							{selectableItems.length > 0 ? selectableItems : 'No Videos'}
 							<Button style={{
 								//position: 'fixed', // Fix the button's position
 								//top: '20px', // Adjust the distance from the top of the screen
@@ -396,7 +399,7 @@ const Main = (props) => {
                                 <QRCodeCanvas value={qrUrl} size={256} />
                             </div>
                         ) : (
-                            <p>QR 코드를 생성하려면 버튼을 클릭하세요.</p>
+                            <p>Click the Button to Get the QR Code</p>
                         )}
                     </div>
                 </Tab>
@@ -418,21 +421,24 @@ const Main = (props) => {
 					<Status/>
 				</Tab>
 				<Tab title={tabsWithIcons[4].title} icon={tabsWithIcons[4].icon}>
-					<Button onClick={handleLogOut}>
-						Log Out
-					</Button>
+					<div className={css.logoutContainer}>
+						<BodyText className={css.title}>{$L('Click the Log Out button if you want to quit')}</BodyText>
+						<Button onClick={handleLogOut}>
+							Log Out
+						</Button>
+					</div>
 				</Tab>
 			</TabLayout>
 
 			{/* 팝업 추가 */}
 			<Popup open={isPopupOpen} onClose={() => setIsPopupOpen(false)}>
-				<h2>이전 시청 기록부터 보시겠습니까?
+				<h2>Would you like to start from where you left off?
 					<h5 style={{ fontSize: '0.8rem', margin: 0 }}>
-						'아니오'를 선택할 경우 시청기록이 저장되지 않습니다,
+						If you click "No", no watch history will be saved
 					</h5>
 				</h2>
-				<Button onClick={handlePopupConfirm}>예</Button>
-				<Button onClick={handlePopupCancel}>아니오</Button>
+				<Button onClick={handlePopupConfirm}>Yes</Button>
+				<Button onClick={handlePopupCancel}>No</Button>
 			</Popup>
 		</Panel>
 	);
