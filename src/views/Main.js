@@ -102,7 +102,7 @@ const Main = (props) => {
 			setSelectedVideo(videoData[index]); // 선택된 비디오 설정
 			setIsPopupOpen(true); // 팝업 열기
 		},
-		[videoData]
+		//[videoData]
 	);
 
 	const fhandleClick = useCallback(
@@ -284,6 +284,7 @@ const Main = (props) => {
 				<Tab title={tabsWithIcons[5].title} icon={tabsWithIcons[5].icon} onTabClick={() => fetchWatchedVideos()}>
 					<Scroller>{wvideoItems.length > 0 ? wvideoItems : 'No Videos'}</Scroller>
 				</Tab>
+				
 				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon}>
 					{/*<Scroller>{videoItems.length > 0 ? videoItems : '비디오가 없습니다.'}</Scroller>
 					<button onClick={() => setIsListAdditionOpen(true)}>add playlist</button> */}

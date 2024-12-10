@@ -35,6 +35,8 @@ export const useMainState = () => {
         }
     }, [videoData]);   */
 
+    console.log("mainstate", videoData);
+
     const fetchTotalVideos = useCallback(async () => {
         try {
             const response = await fetch(`${ADDR_}/api/num_of_videos`);

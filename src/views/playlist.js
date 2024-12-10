@@ -9,7 +9,7 @@ import defaultThumbnail from '../assets/3.jpg';
     const userId = getUserId();
     const [page, setPage] = useState(0);
     const [playlists, setPlaylists] = useState([]);
-    const [loading, setLoading] = useState(false);
+    //const [loading, setLoading] = useState(false);
     const [totalPlaylists, setTotalPlaylists] = useState(null); 
     const [pid, setPid] = useState(0);
     const size = 10;
@@ -17,7 +17,7 @@ import defaultThumbnail from '../assets/3.jpg';
 
     const [addition, setAddition] = useState([]);
 
-    const { loadWatchTime, saveWatchTime, videoData } = useMainState(); 
+    //const { loadWatchTime, saveWatchTime, videoData } = useMainState(); 
 
     const createPlaylist = async(title) => {
     if (!title) {
@@ -58,7 +58,7 @@ import defaultThumbnail from '../assets/3.jpg';
 
   const fetchPlaylists = useCallback(async () => {
     try {
-        setLoading(true); // 로딩 시작
+        //setLoading(true); // 로딩 시작
         //const userId = getUserId(); // 사용자 ID 가져오기
         const response = await fetch(`${ADDR_}/api/getPlaylist/${userId}?page=${page}&size=${size}`);
         if (response.ok) {
@@ -83,7 +83,7 @@ import defaultThumbnail from '../assets/3.jpg';
     } catch (error) {
         console.error('Error fetching playlists:', error);
     } finally {
-        setLoading(false); // 로딩 완료
+        //setLoading(false); // 로딩 완료
     }
 }, []);
 
@@ -121,7 +121,7 @@ const loadPlaylists = useCallback(() => {
 
 
   const playlistVideos = useCallback(async () => {
-    setLoading(true);
+    //setLoading(true);
     try {
         console.log("id:", pid);
         const response = await fetch(`${ADDR_}/api/playlist/${pid}`);
@@ -150,7 +150,7 @@ const loadPlaylists = useCallback(() => {
     } catch (error) {
         console.error('Error fetching watched videos:', error);
     } finally {
-        setLoading(false);
+        //setLoading(false);
     }
   });
 
@@ -173,7 +173,7 @@ const loadPlaylists = useCallback(() => {
   }, [])
 
   const addVideos = useCallback(async() => {
-    setLoading(true);
+    //setLoading(true);
     console.log(addition);
 
         try {
@@ -215,7 +215,7 @@ const loadPlaylists = useCallback(() => {
         } catch (error) {
             console.error('Error fetching video:', error);
         } finally {
-            setLoading(false);
+            //setLoading(false);
         }
     }, [addition, pid]);
 
@@ -223,7 +223,7 @@ const loadPlaylists = useCallback(() => {
     createPlaylist,
     page,
     playlists,
-    loading,
+    //loading,
     playlistVideo,
     fetchPlaylists,
     loadPlaylists,

@@ -36,6 +36,8 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
 
     const [myComments, setMyComments] = useState([]);
     const userId = getUserId();
+
+    console.log("videoplayer.js", videoData);
     
     useEffect(() => {
         console.log("new comments : ", comments);
