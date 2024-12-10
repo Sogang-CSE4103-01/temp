@@ -69,7 +69,6 @@ export const useLogin = () => {
 			const userId = data.userId;
             console.log('User ID:', userId);
 
-            // config.js에서 제공하는 setUserId 함수로 userId 설정
             setUserId(userId);
 			setLoginMessage('Login successful!'); // 성공 메시지 설정
 			setLoginSuccess(true);
