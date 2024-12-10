@@ -86,11 +86,11 @@ const Login = ({ onSubmit, onClose }) => {
                 {/* Sign Up Tab */}
                 <Tab title={$L('Sign Up')}>
                     <div className={css2.signupContainer}>
-                        <BodyText>{$L('회원가입하여 서비스를 이용하세요.')}</BodyText>
+                        <BodyText>{$L('Sign Up to use the service.')}</BodyText>
                         <Input
                             type="text"
                             name="username"
-                            placeholder={$L('사용자 이름')}
+                            placeholder={$L('Username')}
                             value={newusername}
                             onChange={handleSignupUsernameChange}
                             className={css2.inputField}
@@ -98,13 +98,13 @@ const Login = ({ onSubmit, onClose }) => {
                         <Input
                             type="password"
                             name="password"
-                            placeholder={$L('비밀번호')}
+                            placeholder={$L('Password')}
                             value={newpassword}
                             onChange={handleSignupPasswordChange}
                             className={css2.inputField}
                         />
-                        <Button onClick={handleSignup} className={css2.signupButton}>
-                            {$L('회원가입')}
+                        <Button onClick={handleSignup} size="small" className={css.button}>
+                            {$L('register')}
                         </Button>
                     </div>
                 </Tab>

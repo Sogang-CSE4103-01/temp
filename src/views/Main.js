@@ -102,6 +102,11 @@ const Main = (props) => {
 		[videoData]
 	);
 
+	/*
+	const handleAddition = () => {
+		setIsListAdditionOpen(true);
+	}; */
+
 	const handlePopupConfirm = () => {
 		const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
 		const startTime = 1; // 시청 시간이 있다면 1, 없다면 0
@@ -340,6 +345,7 @@ const Main = (props) => {
 
 
 					{/* 팝업 추가 */}
+
 					<Popup open={isPlaylistSelected && !isAddingVideo} onClose={() => setIsPlaylistSelected(false)}>
 
 					<h2>Playlist</h2>
@@ -371,7 +377,10 @@ const Main = (props) => {
 								//transform: 'translateX(-50%)', // Correct centering alignment
 								zIndex: 1000, // Ensure the button appears above the popup
 							}}
-							onClick={() => addVideos() && setIsAddingVideo(true)}
+							onClick={() => {
+								addVideos();
+								setIsAddingVideo(true);
+							}}
 							>Add
 							</Button>
 						</Scroller>
@@ -396,16 +405,18 @@ const Main = (props) => {
                     </div>
                 </Tab>
 
+				{/*}
 				<Tab title={tabsWithIcons[1].title} icon={tabsWithIcons[1].icon}>
 					<Button icon="demosync">Button 1</Button>
 					<Button icon="demosync">Button 2</Button>
 					<Button icon="demosync">Button 3</Button>
 					<Button icon="demosync">Button 4</Button>
 					<Button icon="demosync">Button 5</Button>
-				</Tab>
+				</Tab> 
 				<Tab title={tabsWithIcons[2].title} icon={tabsWithIcons[2].icon}>
 					<Item slotBefore={<Icon>playcircle</Icon>}>Single Item</Item>
-				</Tab>
+				</Tab>  */}
+
 				<Tab title={tabsWithIcons[3].title} icon={tabsWithIcons[3].icon}>
 					<SystemMonitor />
 				</Tab>

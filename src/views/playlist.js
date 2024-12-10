@@ -13,10 +13,9 @@ import defaultThumbnail from '../assets/3.jpg';
     const [totalPlaylists, setTotalPlaylists] = useState(null); 
     const [pid, setPid] = useState(0);
     const size = 10;
-    //const playlist_id = 0;
     const [playlistVideo, setPlaylistVideo] = useState([]);
 
-    const [addition, setAddtion] = useState([]);
+    const [addition, setAddition] = useState([]);
 
     const { loadWatchTime, saveWatchTime, videoData } = useMainState(); 
 
@@ -164,11 +163,16 @@ const loadPlaylists = useCallback(() => {
   const handleAddition = useCallback(async (key) => {
     console.log('handle addition : ', key);
 
-    setAddtion((prevKeys) => [...prevKeys, key]);
+    //setAddtion((prevKeys) => [...prevKeys, key]);
+    setAddition((prevKeys) => {
+      const updatedKeys = [...prevKeys, key];
+      console.log('Updated addition array:', updatedKeys); // Debugging output
+      return updatedKeys;
+  });
 
   }, [])
 
-  const addVdieos = useCallback(async() => {
+  const addVideos = useCallback(async() => {
     setLoading(true);
     console.log(addition);
 
@@ -187,7 +191,13 @@ const loadPlaylists = useCallback(() => {
 
             const responses = await Promise.all(
               addition.map(async (videoId) => {
-                const response = await fetch(`${ADDR_}/api/addPlaylist/videoId=${videoId}&playlistId=${pid}`);
+                console.log(videoId, pid);
+                const response = await fetch(`${ADDR_}/api/addPlaylist?videoId=${videoId}&playlistId=${pid}` , {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  }
+                });
                 if (!response.ok) {
                     throw new Error(`Failed to add video with ID: ${videoId}`);
                 }
@@ -196,14 +206,18 @@ const loadPlaylists = useCallback(() => {
             );
 
             // Assuming the video data comes in a format like: { id, title, url }
-            setPlaylistVideo((prevItems) => [...prevItems, videoData]);
+            //setPlaylistVideo((prevItems) => [...prevItems, responses]);
+            playlistVideos();
+            console.log(playlistVideo);
+            console.log("success : ", responses);
+
+            setAddition([]);
         } catch (error) {
             console.error('Error fetching video:', error);
         } finally {
             setLoading(false);
         }
-    }, []);
-
+    }, [addition, pid]);
 
   return {
     createPlaylist,
@@ -217,7 +231,7 @@ const loadPlaylists = useCallback(() => {
     playlistVideos,
     addButton,
     handleAddition,
-    addVdieos
+    addVideos
     //handlePlaylistClick,
   };
  };

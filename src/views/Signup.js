@@ -12,13 +12,13 @@ const Signup = () => {
 
     return (
         <Panel>
-            <Header title={$L('회원가입')} />
+            <Header title={$L('Register')} />
             <div className={css.signupContainer}>
-                <BodyText>{$L('회원가입하여 서비스를 이용하세요.')}</BodyText>
+                <BodyText>{$L('Register to use service.')}</BodyText>
                 <Input
                     type="text"
                     name="username"
-                    placeholder={$L('사용자 이름')}
+                    placeholder={$L('username')}
                     value={username}
                     onChange={handleInputChange}
                     className={css.inputField}
@@ -26,13 +26,13 @@ const Signup = () => {
                 <Input
                     type="password"
                     name="password"
-                    placeholder={$L('비밀번호')}
+                    placeholder={$L('password')}
                     value={password}
                     onChange={handleInputChange}
                     className={css.inputField}
                 />
                 <Button onClick={handleSignup} className={css.signupButton}>
-                    {$L('회원가입')}
+                    {$L('register')}
                 </Button>
             </div>
         </Panel>

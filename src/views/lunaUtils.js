@@ -70,7 +70,6 @@ export const getLunaSystemResource = async => {
                 //const cpuUsage = res.cpuUsage || 0;
                 const memTotal = res.system.total || 0;
                 const memoryUsed = res.system.avaliable || 0;
-
                 resolve=({
                     //cpuUsage,
                     memoryUsage: {
@@ -84,5 +83,6 @@ export const getLunaSystemResource = async => {
                 reject(err);
             },
         }); */
+        //});
     });
 };

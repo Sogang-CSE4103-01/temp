@@ -22,7 +22,6 @@ const SystemMonitor = () => {
     
         const fetchData = async () => {
             try{
-                //const systemData = await getSystemResource();
                 const systemData = await getLunaSystemResource();
 
                 if(systemData){
