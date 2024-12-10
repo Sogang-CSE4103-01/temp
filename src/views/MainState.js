@@ -95,6 +95,7 @@ export const useMainState = () => {
         const filteredVideos = allVideos.filter(video => 
             video.title.includes(searchString) // 제목에 특정 문자열이 포함되는지 확인
         );
+        console.log("aaaa", filteredVideos);
         return filteredVideos;
     };
 

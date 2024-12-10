@@ -55,18 +55,20 @@ const Main = (props) => {
 	}, [filteredVideos]);*/
 
 
-	const handleSearchChange = (event) => {
+	const handleSearchChange = async (event) => {
 		const value = event.value; // event.value를 사용
 		setSearchString(value); // 입력된 검색 문자열 상태 업데이트
 	
 		if (value) {
-			generateFilteredVideoData(value).then(filtered => {
-				setFilteredVideos(filtered); // 필터링된 비디오 저장
-			});
+			console.log("검색중", value);
+			// 비디오 데이터 필터링
+			const filtered = await generateFilteredVideoData(value); // await을 사용하여 결과를 기다립니다.
+			setFilteredVideos(filtered); // 필터링된 비디오 저장
 		} else {
 			setFilteredVideos([]); // 입력이 없을 경우 필터링된 비디오 초기화
 		}
 	};
+	
 	
 	const handleClick = useCallback(
 		index => () => {
@@ -76,10 +78,24 @@ const Main = (props) => {
 		[videoData]
 	);
 
+	const fhandleClick = useCallback(
+		index => () => {
+			const selectedVideo = filteredVideos.find(video => video.id === index + 1); // index + 1과 같은 video.id를 가진 비디오 찾기
+			if (selectedVideo) {
+				setSelectedVideo(selectedVideo); // 선택된 비디오 설정
+				setIsPopupOpen(true); // 팝업 열기
+			}
+		},
+		[filteredVideos] // filteredVideos를 의존성으로 추가
+	);
+	
+
+	
 	const handlePopupConfirm = () => {
 		const savedTime = loadWatchTime(selectedVideo.id); // 저장된 시청 시간 가져오기
 		const startTime = 1; // 시청 시간이 있다면 1, 없다면 0
 		console.log("aaa", startTime);
+		console.log("재생할 비디오 ID:", selectedVideo.id);
 		// 비디오 재생 패널로 이동
 		setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo, startTime } }]);
 		setIsPopupOpen(false); // 팝업 닫기
@@ -95,6 +111,7 @@ const Main = (props) => {
 	const handlePopupCancel = () => {
 		// 비디오를 처음부터 재생
 		const startTime = 0;
+		
 		console.log("bbb", startTime);
 		setPanelData(prev => [...prev, { name: 'videoPlay', data: { video: selectedVideo, startTime } }]);
 		setIsPopupOpen(false); // 팝업 닫기
@@ -103,21 +120,30 @@ const Main = (props) => {
 
 
 	// 비디오 컴포넌트 렌더링
-	const videoItems = (searchString.length === 0 ? videoData : filteredVideos).map(video => (
-        <ImageItem
-            inline
-            key={video.id}
-            label={video.title} // 비디오 제목을 레이블로 사용
-            src={video.thumbnail} // 비디오 썸네일
-            style={{
-                width: scaleToRem(768),
-                height: scaleToRem(588)
-            }}
-            onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
-        >
-            {video.title} {/* 비디오 제목을 표시 */}
-        </ImageItem>
-    ));
+	const videoItems = (searchString.length === 0 ? videoData : filteredVideos).map(video => {
+		console.log("비디오 ID:", video.id); // 비디오 ID를 콘솔에 출력
+	
+		// 조건에 따라 클릭 핸들러를 선택
+		const handleClickFunction = searchString.length === 0 ? handleClick(video.id - 1) : fhandleClick(video.id - 1);
+	
+		return (
+			<ImageItem
+				inline
+				key={video.id}
+				label={video.title} // 비디오 제목을 레이블로 사용
+				src={video.thumbnail} // 비디오 썸네일
+				style={{
+					width: scaleToRem(768),
+					height: scaleToRem(588)
+				}}
+				onClick={handleClickFunction} // 클릭 시 적절한 핸들러 사용
+			>
+				{video.title} {/* 비디오 제목을 표시 */}
+			</ImageItem>
+		);
+	});
+	
+	
 
 	const wvideoItems = watchedVideos.map(video => (
 		<ImageItem
@@ -134,22 +160,6 @@ const Main = (props) => {
 			{video.title} {/* 비디오 제목을 표시 */}
 		</ImageItem>
 	));
-
-	const fvideoItems = filteredVideos.map(video => (
-        <ImageItem
-            inline
-            key={video.id}
-            label={video.title} // 비디오 제목을 레이블로 사용
-            src={video.thumbnail} // 비디오 썸네일
-            style={{
-				width: scaleToRem(768),
-				height: scaleToRem(588)
-			}}
-			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
-        >
-            {video.title} {/* 비디오 제목을 표시 */}
-        </ImageItem>
-    ));
 
 
 	const userVideoItems = videoData.filter(video => video.id % userId === 0).map(video => (
@@ -204,9 +214,6 @@ const Main = (props) => {
                 </Tab>
 				<Tab title={tabsWithIcons[5].title} icon={tabsWithIcons[5].icon} onTabClick={() => fetchWatchedVideos()}>
 					<Scroller>{wvideoItems.length > 0 ? wvideoItems : '비디오가 없습니다.'}</Scroller>
-				</Tab>
-				<Tab title={tabsWithIcons[6].title} icon={tabsWithIcons[6].icon} onTabClick={() => fetchFilteredVideos()}>
-					<Scroller>{fvideoItems.length > 0 ? fvideoItems : '비디오가 없습니다.'}</Scroller>
 				</Tab>
 
                 <Tab title={tabsWithIcons[7].title} icon={tabsWithIcons[7].icon}>
