@@ -54,7 +54,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
         if (videoNode) {
             const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-            saveWatchTime(video.id, currentTime); // 현재 시간을 저장
+            saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
             console.log("이전 동영상 재생시간", videoNode.currentTime);
         }
         setPanelData(prev => [...prev, { name: 'detail', data: { index: video.id } }]); // 디테일 패널로 이동
@@ -64,7 +64,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
         if (videoNode) {
             const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-            saveWatchTime(video.id, currentTime); // 현재 시간을 저장
+            saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
         }
     };
 
@@ -93,7 +93,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
         if (videoNode) {
             const currentTime = videoNode.currentTime; // 현재 재생 중인 비디오의 시간
-            saveWatchTime(video.id, currentTime); // 현재 비디오 시간을 저장
+            saveWatchTime(video.id, userId, currentTime); // 현재 비디오 시간을 저장
             console.log("현재 재생중인 동영상 재생시간", currentTime);
         }
         // 클릭된 썸네일 비디오로 이동
