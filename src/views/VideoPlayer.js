@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useRef, useContext, useState, useEffect } from 'react';
+import React, { useRef, createContext, useContext, useState, useEffect } from 'react';
 import Button from '@enact/sandstone/Button';
 import Scroller from '@enact/sandstone/Scroller';
 import { MediaControls } from '@enact/sandstone/MediaPlayer';
