@@ -45,6 +45,7 @@
 		"@enact/spotlight": "^4.7.0",
 		"@enact/ui": "^4.9.4",
 		"@enact/webos": "^4.9.4",
+		"chart.js": "^4.4.7",
 		"fs": "^0.0.1-security",
 		"ilib": "^14.17.0",
 		"luna": "^1.6.3",
@@ -52,6 +53,7 @@
 		"prop-types": "^15.8.1",
 		"qrcode.react": "^4.1.0",
 		"react": "^18.3.1",
+		"react-chartjs-2": "^5.2.0",
 		"react-dom": "^18.3.1",
 		"react-router-dom": "^7.0.2",
 		"webo": "^4.3.4"
@@ -60,7 +62,9 @@
 		"eslint-config-enact-proxy": "^1.0.5",
 		"husky": "^4.3.8",
 		"lint-staged": "^12.1.7",
-		"prettier": "^2.5.1"
+		"prettier": "^2.5.1",
+		"chart.js": "^4.4.7",
+    	"react-chartjs-2": "5.2.0"
 	},
 	"husky": {
 		"hooks": {

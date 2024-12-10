@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import {useProcStat, useUnitList} from '../hooks/useData';
 import ImageItem from '@enact/sandstone/ImageItem';
 import Scroller from '@enact/sandstone/Scroller';
 import Button from '@enact/sandstone/Button';
@@ -15,12 +16,12 @@ import SystemMonitor from './systemMonitor';
 import useLogOut from './LogoutState';
 import { PanelContext } from './Context'; // PanelContext 가져오기
 import Popup from '@enact/sandstone/Popup'; // 팝업 컴포넌트 가져오기
-import { getUserId } from './address'; // config에서 setUserId 가져오기
+import { ADDR_, getUserId } from './address'; // config에서 setUserId 가져오기
 import { QRCodeCanvas } from 'qrcode.react'; // 또는 QRCodeSVG
 //import { InputField } from '@enact/sandstone/Input';
 //import {createPlaylist} from './playlist';
 import { usePlaylist } from './playlist';
-
+import Status from './statusCheck';
 
 const tabsWithIcons = [
 	{ title: 'Home', icon: 'home' },
@@ -71,14 +72,11 @@ const Main = (props) => {
     // 필터링된 비디오 가져오기
     const fetchFilteredVideos = async () => {
         const filtered = await generateFilteredVideoData(searchString);
-        console.log("필터된 영상은", filtered);
         setFilteredVideos(filtered); // 필터링된 비디오 저장
-		console.log("필터된 영상은", filteredVideos);
     };
 
-	useEffect(() => {
-		console.log("업데이트된 필터된 영상은", filteredVideos);
-	}, [filteredVideos]);
+	/*useEffect(() => {
+	}, [filteredVideos]);*/
 
 
 	const handleSearchChange = (event) => {
@@ -230,12 +228,10 @@ const Main = (props) => {
 
     const generateRandomURL = () => {
 		const randomId = Math.floor(Math.random() * 100000); // 0~99999 사이의 랜덤 숫자
-		const randomUrl = `http://192.168.0.2:8080/register`;
+		const randomUrl = `${ADDR_}/register`;
 		setQrUrl(randomUrl);
-        console.log(qrUrl, setQrUrl);
 	};
 
-	console.log("userid for main panner", userId);
 
 	return (
 		<Panel
@@ -393,7 +389,7 @@ const Main = (props) => {
 
                 <Tab title={tabsWithIcons[7].title} icon={tabsWithIcons[7].icon}>
                     <div style={{ textAlign: 'center', padding: '20px' }}>
-                        <Button onClick={generateRandomURL}>임의 URL QR 코드 생성</Button>
+                        <Button onClick={generateRandomURL}>upload video</Button>
                         {qrUrl ? (
                             <div style={{ marginTop: '20px' }}>
                                 <p>생성된 URL: {qrUrl}</p>
@@ -418,7 +414,8 @@ const Main = (props) => {
 				</Tab>  */}
 
 				<Tab title={tabsWithIcons[3].title} icon={tabsWithIcons[3].icon}>
-					<SystemMonitor />
+					{/*<SystemMonitor />*/}
+					<Status/>
 				</Tab>
 				<Tab title={tabsWithIcons[4].title} icon={tabsWithIcons[4].icon}>
 					<Button onClick={handleLogOut}>
@@ -442,3 +439,54 @@ const Main = (props) => {
 };
 
 export default Main;
+
+
+/*
+import Alert from '@enact/sandstone/Alert';
+import BodyText from '@enact/sandstone/BodyText';
+import Button from '@enact/sandstone/Button';
+import {Header, Panel} from '@enact/sandstone/Panels';
+import {usePopup} from './MainState_';
+
+import css from './Main.module_.less';
+import $L from '@enact/i18n/$L';
+import {useProcStat} from '../hooks/useData';
+
+const Main = props => {
+	const procStat = useProcStat();
+	const {isPopupOpen, handlePopupOpen, handlePopupClose, handleLaunchApp} =
+		usePopup();
+
+	return (
+		<Panel {...props}>
+			<Header title={$L('Enact Template')} />
+			<BodyText>{$L('This is a main page of sample application.')}</BodyText>
+			<Button onClick={handlePopupOpen} size="small" className={css.buttonCell}>
+				{$L('Open Alert')}
+			</Button>
+			<BodyText>{`procStat : ${JSON.stringify(procStat)}`}</BodyText>
+			<Alert type="overlay" open={isPopupOpen} onClose={handlePopupClose}>
+				<span>{$L('This is an alert message.')}</span>
+				<buttons>
+					<Button
+						size="small"
+						className={css.buttonCell}
+						onClick={handleLaunchApp}
+					>
+						Launch
+					</Button>
+					<Button
+						size="small"
+						className={css.buttonCell}
+						onClick={handlePopupClose}
+					>
+						{$L('Close')}
+					</Button>
+				</buttons>
+			</Alert>
+		</Panel>
+	);
+};
+
+export default Main;
+*/
