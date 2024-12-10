@@ -88,6 +88,17 @@ const Main = (props) => {
 		},
 		[filteredVideos] // filteredVideos를 의존성으로 추가
 	);
+
+	const whandleClick = useCallback(
+		index => () => {
+			const selectedVideo = watchedVideos.find(video => video.id === index + 1); // index + 1과 같은 video.id를 가진 비디오 찾기
+			if (selectedVideo) {
+				setSelectedVideo(selectedVideo); // 선택된 비디오 설정
+				setIsPopupOpen(true); // 팝업 열기
+			}
+		},
+		[watchedVideos] // filteredVideos를 의존성으로 추가
+	);
 	
 
 	
@@ -121,7 +132,6 @@ const Main = (props) => {
 
 	// 비디오 컴포넌트 렌더링
 	const videoItems = (searchString.length === 0 ? videoData : filteredVideos).map(video => {
-		console.log("비디오 ID:", video.id); // 비디오 ID를 콘솔에 출력
 	
 		// 조건에 따라 클릭 핸들러를 선택
 		const handleClickFunction = searchString.length === 0 ? handleClick(video.id - 1) : fhandleClick(video.id - 1);
@@ -145,21 +155,26 @@ const Main = (props) => {
 	
 	
 
-	const wvideoItems = watchedVideos.map(video => (
-		<ImageItem
-			inline
-			key={video.id}
-			label={video.title} // 비디오 제목을 레이블로 사용
-			src={video.thumbnail} // 비디오 썸네일
-			style={{
-				width: scaleToRem(768),
-				height: scaleToRem(588)
-			}}
-			onClick={handleClick(video.id - 1)} // 클릭 시 팝업 열기
-		>
-			{video.title} {/* 비디오 제목을 표시 */}
-		</ImageItem>
-	));
+	const wvideoItems = watchedVideos.map(video => {
+		console.log("시청한 비디오 ID:", video.id); // 시청한 비디오 ID를 콘솔에 출력
+	
+		return (
+			<ImageItem
+				inline
+				key={video.id}
+				label={video.title} // 비디오 제목을 레이블로 사용
+				src={video.thumbnail} // 비디오 썸네일
+				style={{
+					width: scaleToRem(768),
+					height: scaleToRem(588)
+				}}
+				onClick={whandleClick(video.id - 1)} // 클릭 시 팝업 열기
+			>
+				{video.title} {/* 비디오 제목을 표시 */}
+			</ImageItem>
+		);
+	});
+	
 
 
 	const userVideoItems = videoData.filter(video => video.id % userId === 0).map(video => (
