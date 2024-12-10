@@ -50,6 +50,7 @@ const Main = (props) => {
 	const [isPlaylistSelected, setIsPlaylistSelected] = useState(false);
 	const [isAddingVideo, setIsAddingVideo] = useState(false);
 	const [title, setTitle] = useState('');
+	//const [playlistId, setPlaylistId] = useState(-1);
 
 	const {
 		createPlaylist,

@@ -170,19 +170,33 @@ const loadPlaylists = useCallback(() => {
 
   const addVdieos = useCallback(async() => {
     setLoading(true);
+    console.log(addition);
 
         try {
             // Replace this URL with the API endpoint to fetch the newly added video
-            const response = await fetch('https://example.com/api/new-video');
+            //const response = await fetch('https://example.com/api/new-video');
+
+            /*
+            const response = await fetch(`${ADDR_}/api/addPlaylist/videoId=${videoid}&playlistId=${pid}`);
             
             if (!response.ok) {
                 throw new Error('Failed to fetch video');
             }
 
-            const videoData = await response.json();
+            const videoData = await response.json(); */
+
+            const responses = await Promise.all(
+              addition.map(async (videoId) => {
+                const response = await fetch(`${ADDR_}/api/addPlaylist/videoId=${videoId}&playlistId=${pid}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to add video with ID: ${videoId}`);
+                }
+                return response.json();
+              })
+            );
 
             // Assuming the video data comes in a format like: { id, title, url }
-            setPlaylistItems((prevItems) => [...prevItems, videoData]);
+            setPlaylistVideo((prevItems) => [...prevItems, videoData]);
         } catch (error) {
             console.error('Error fetching video:', error);
         } finally {
