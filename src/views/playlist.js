@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ADDR_ } from './address';
 import { getUserId } from './address';

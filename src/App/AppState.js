@@ -3,7 +3,6 @@ import {useCallback, useEffect} from 'react';
 import * as domEvents from '../constants/domEvents';
 import debugLog from '../libs/log';
 import {closeApp, isTVBrowser, reload} from '../libs/utils';
-import { useProcStat } from '../hooks/useData';
 import { useContext } from 'react';
 import { PanelContext } from '../views/Context';
 

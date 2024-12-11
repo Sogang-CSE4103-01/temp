@@ -41,10 +41,10 @@
 	"dependencies": {
 		"@enact/core": "^4.9.4",
 		"@enact/i18n": "^4.7.0",
-		"@enact/sandstone": "^2.9.5",
+		"@enact/sandstone": "^2.9.6",
 		"@enact/spotlight": "^4.7.0",
 		"@enact/ui": "^4.9.4",
-		"@enact/webos": "^4.9.4",
+		"@enact/webos": "^4.9.5",
 		"chart.js": "^4.4.7",
 		"fs": "^0.0.1-security",
 		"ilib": "^14.17.0",
@@ -59,12 +59,12 @@
 		"webo": "^4.3.4"
 	},
 	"devDependencies": {
+		"chart.js": "^4.4.7",
 		"eslint-config-enact-proxy": "^1.0.5",
 		"husky": "^4.3.8",
 		"lint-staged": "^12.1.7",
 		"prettier": "^2.5.1",
-		"chart.js": "^4.4.7",
-    	"react-chartjs-2": "5.2.0"
+		"react-chartjs-2": "5.2.0"
 	},
 	"husky": {
 		"hooks": {

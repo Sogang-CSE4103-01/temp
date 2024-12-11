@@ -2,6 +2,7 @@
 import React, { useRef, createContext, useContext, useState, useEffect } from 'react';
 import Button from '@enact/sandstone/Button';
 import Scroller from '@enact/sandstone/Scroller';
+import {IconItem, Row, Column} from '@enact/sandstone/IconItem';
 import { MediaControls } from '@enact/sandstone/MediaPlayer';
 import VideoPlayer from '@enact/sandstone/VideoPlayer';
 import { Header, Panel } from '@enact/sandstone/Panels';
@@ -38,6 +39,49 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     const [isRecipeOpen, setIsRecipeOpen] = useState(false);
     const [recipe, setRecipe] = useState([]);
     const userId = getUserId();
+    const [loopStart, setLoopStart] = useState(null); // Start time for the loop
+    const [loopEnd, setLoopEnd] = useState(null); // End time for the loop
+    const [isLooping, setIsLooping] = useState(false); // Whether looping is active
+
+    const handleSetStartPoint = () => {
+        const videoNode = videoRef.current.getVideoNode();
+        if (videoNode) {
+            setLoopStart(videoNode.currentTime); // Set the start time
+            console.log("Loop start set at:", videoNode.currentTime);
+        }
+    };
+
+    const handleSetEndPoint = () => {
+        const videoNode = videoRef.current.getVideoNode();
+        if (videoNode) {
+            setLoopEnd(videoNode.currentTime); // Set the end time
+            console.log("Loop end set at:", videoNode.currentTime);
+        }
+    };
+
+    // 재생바의 스타일을 업데이트하기 위한 함수
+    const getProgressBarStyle = () => {
+        if (loopStart !== null && loopEnd !== null) {
+            return {
+                background: `linear-gradient(to right, transparent, transparent ${loopStart * 100}%, rgba(255, 0, 0, 0.5) ${loopStart * 100}%, rgba(255, 0, 0, 0.5) ${loopEnd * 100}%, transparent ${loopEnd * 100}%)`
+            };
+        }
+        return {};
+    };
+
+    const toggleLoop = () => {
+        setIsLooping(!isLooping); // Toggle looping on or off
+    };
+
+    const handleTimeUpdate = () => {
+        const videoNode = videoRef.current.getVideoNode();
+        if (videoNode && isLooping && loopStart !== null && loopEnd !== null) {
+            if (videoNode.currentTime >= loopEnd) {
+                videoNode.currentTime = loopStart; // Jump back to the start of the loop
+                videoNode.play(); // Resume playback
+            }
+        }
+    };
 
     //console.log("videoplayer.js", videoData);
     
@@ -62,12 +106,6 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     const handleGoToDetails = async () => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
         console.log("!");
-        //if (videoNode) {
-            //const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-            //saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
-            //console.log("이전 동영상 재생시간", videoNode.currentTime);
-        //}
-        //setPanelData(prev => [...prev, { name: 'detail', data: { index: video.id } }]); // 디테일 패널로 이동
         const videoId = video.id;
 
         try{
@@ -80,14 +118,6 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             const response = await response_.text();
             console.log(response);
             const data = response.split("\n").map(line => line.trim()).filter(line => line !== "");
-
-            //if (!response.ok) {
-            //    throw new Error(`Failed tso fetch recipe: ${response.statusText}`);
-            //}
-
-            //const data = await response_.json();
-            //const data = JSON.parse(response_);
-            //console.log("data", data);
             setRecipe(data);
             console.log(data);
             //setRecipe(response);
@@ -184,18 +214,12 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             //const url = `http://localhost:8080/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
             const url = `${ADDR_}/api/comment/${videoId}?page=${page}&size=10` //${pageSize}`;
             const response = await fetch(url);
-            /*
-            const response = await fetch(url, {
-                method:'GET',
-                headers : {
-                    'Content-Type' : 'application/json',
-                }
-            });*/
+
             if (response.ok) {
                 const data = await response.json();
                 console.log("data :", data);
                 
-                //setComments(prevComments => [...prevComments, ...data.comments]);
+
                 
                 setComments((prevComments) => [
                     ...prevComments,
@@ -217,10 +241,6 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
 
         console.log("sending comments : ", comment);
 
-        // 댓글 목록에 사용자가 입력한 댓글을 추가
-        //setComments(prev => [{ content: comment }, ...prev]);
-
-        // 서버에 댓글 전송
         await postComment(comment);
 
         setComment('');
@@ -233,51 +253,23 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         }
 
         const videoId = String(video.id); 
-        //console.log(videoId);
-        //const userId =  "1";
-        //console.log(userId);
 
         try {
             
-            /*
-            const url = `http://192.168.0.2:8080/api/comment/create`;
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    galaxy: videoId,
-                    //videoId : 1,
-                    userId: username,
-                    content: encodeURIComponent(content),
-                }),
-            });  */
-            //const url = `http://localhost:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
-            
-            //const url = `http://192.168.0.2:8080/api/comment/create?videoID=${videoId}&userId=${username}&content=${encodeURIComponent(content)}`;
             const url = `${ADDR_}/api/comment/create?galaxy=${videoId}&userId=${userId}&content=${comment}`
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    //'Content-Type' : 'application/jx-www-form-urlencoded'
                 }
                 //}),
             });
             //); 
             if (response.ok) {
                 const newComment = await response.json();
-                //setComments(prev => [newComment, ...prev]); // 새 댓글을 기존 목록의 맨 앞에 추가
-                //setComments(prev => [content, ...prev]);
-                //setMyComments(prev => [...prev, {...content, isLocal : true}]);
                 console.log(newComment.length);
             } else {
                 console.error("댓글 전송 실패:", response.status);
-                //setComments(prev => [newComment, ...prev]);
-                //setMyComments(prev => [...prev, {...content, isLocal : true}]);
-                //console.log(newComments.length);
             }
         } catch (error) {
             console.error("댓글 전송 오류:", error);
@@ -301,37 +293,53 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             />
             <div className="video-modal">
                 <VideoPlayer
-                    loop
+                    loop={false}
                     ref={setVideo}
                     style={{ width: '100%', height: '100%' }} // 전체 화면 차지
                     onEnded={handleVideoEnd} // 비디오 종료 시 핸들러 추가
+                    onTimeUpdate={handleTimeUpdate} // Monitor playback time
 
-                    onLoadedData={startTime > 0 ? handleLoadedData : null} // startTime에 따라 호출되는 핸들러 설정
+                    onLoadedData={startTime > 0 ? handleLoadedData : null} // startTime에 따라 호출되는 핸들러 설정 pauseforward pausebackward
                 >
-                    
-                    <MediaControls>
-                        <Button onClick={() => {
-                            handleRecipe(),
-                            handleGoToDetails() 
-                            }}
-                            >Go to Recipe</Button> 
-                        
-                        <Button onClick={() => { 
-                            setIsPopupOpen(true);
-                            //fetchComments();
-                            }}>Comments</Button> {/* 팝업 버튼 추가 */}
-                        <Button onClick={() => setIsBotOpen(true)}>Chatbot</Button> 
-                        <Button onClick={() => {
-                            const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
-                            if (videoNode) {
-                                const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-                                saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
-                                console.log(typeof video.id);
-                                console.log(typeof currentTime);
-                            }
-                            handleBack(); // 패널 이동
-                        }}>Back</Button> {/* 뒤로가기 버튼 추가 */}
 
+                    <MediaControls>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                            <IconItem onClick={handleSetStartPoint} icon="pauseforward" size="small" />
+                            <IconItem onClick={handleSetEndPoint} icon="pausebackward" size="small" />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '10px' , justifyContent: 'center'}}>
+                            <Button onClick={toggleLoop} size="small">
+                                {isLooping ? "Disable Loop" : "Enable Loop"}
+                            </Button>
+                            <Button size="small" onClick={() => {
+                                handleRecipe(),
+                                handleGoToDetails() 
+                            }}>
+                                Go to Recipe
+                            </Button> 
+
+                            <Button size="small" onClick={() => { 
+                                setIsPopupOpen(true);
+                            }}>
+                                Comments
+                            </Button>
+
+                            <Button size="small" onClick={() => setIsBotOpen(true)}>
+                                Chatbot
+                            </Button> 
+
+                            <Button size="small" onClick={() => {
+                                const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
+                                if (videoNode) {
+                                    const currentTime = videoNode.currentTime; // 현재 시간 가져오기
+                                    saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
+                                }
+                                handleBack(); // 패널 이동
+                            }}>
+                                Back
+                            </Button>
+                        </div>
                         {/* 다른 비디오 썸네일 표시 */}
                         <Scroller
                             style={{ padding: '10px 0', height: '150px', width: '100%' }} // 스크롤러의 크기 조정
@@ -352,6 +360,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                             )) : <div>No Videos</div>}
                         </Scroller>
                     </MediaControls>
+                    
                     
                     <source src={video.src} type="video/mp4" />
                 </VideoPlayer>
@@ -386,29 +395,6 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     )}
                 </div>
 
-                    {/*}
-                    {comments.length > 0 ? comments.map((comment, index) => (
-                        <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>comment : {comment} / User ID: {comment.userId}</div>
-                            <div style={{ fontSize: '0.8rem' }}>{comment.content}</div>
-                        </div>
-                    )) : <div>댓글이 없습니다.</div>} 
-                    }
-                    {Array.from({ length: 15 }).map((_, index) => (
-                        <h5 style={{ fontSize: '0.8rem', margin: 0 }} key={index}>
-                            아 진짜 하기 싫다
-                            <h5 style={{ fontSize: '0.5rem', margin: 0 }}>
-                                @임대규 15:31
-                            </h5>
-                        </h5>
-                    ))} */}
-                    {/*}
-                    {myComments.length > 0 ? myComments.map((comment, index) => (
-                        <div key={index} style={{ marginBottom: '10px', padding: '5px' }}>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>comment : {comment} / User ID: {comment.userId}</div>
-                            <div style={{ fontSize: '0.8rem' }}>{comment.content}</div>
-                        </div>
-                    )) : <div>_</div>} */}
                 </Scroller>
                 <InputField
                     placeholder="type the comment..."

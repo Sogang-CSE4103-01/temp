@@ -74,6 +74,7 @@ export const useUnitList = () => {
 }; */
 
 // This is subscribe APIs.
+/* eslint-disable */
 import {useEffect, useRef, useState} from 'react';
 import LS2Request from '@enact/webos/LS2Request';
 import debugLog from '../libs/log';

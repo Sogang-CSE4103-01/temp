@@ -1,6 +1,5 @@
 /* eslint-disable */
 import React from 'react';
-import { useProcStat, useUnitList } from '../hooks/useData';
 import { Panel, Header } from '@enact/sandstone/Panels';
 import { Scroller } from '@enact/sandstone/Scroller';
 
