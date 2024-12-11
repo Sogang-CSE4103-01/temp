@@ -35,9 +35,11 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
     //const [myComment, setMyComments] = useState('');
 
     const [myComments, setMyComments] = useState([]);
+    const [isRecipeOpen, setIsRecipeOpen] = useState(false);
+    const [recipe, setRecipe] = useState([]);
     const userId = getUserId();
 
-    console.log("videoplayer.js", videoData);
+    //console.log("videoplayer.js", videoData);
     
     useEffect(() => {
         console.log("new comments : ", comments);
@@ -51,15 +53,49 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
         }
     }, [isPopupOpen]) 
 
+    const handleRecipe = () => {
+        setIsRecipeOpen(true);
+        console.log("recipe", isRecipeOpen);
+    }
 
-    const handleGoToDetails = () => {
+
+    const handleGoToDetails = async () => {
         const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
-        if (videoNode) {
-            const currentTime = videoNode.currentTime; // 현재 시간 가져오기
-            saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
-            console.log("이전 동영상 재생시간", videoNode.currentTime);
+        console.log("!");
+        //if (videoNode) {
+            //const currentTime = videoNode.currentTime; // 현재 시간 가져오기
+            //saveWatchTime(video.id, userId, currentTime); // 현재 시간을 저장
+            //console.log("이전 동영상 재생시간", videoNode.currentTime);
+        //}
+        //setPanelData(prev => [...prev, { name: 'detail', data: { index: video.id } }]); // 디테일 패널로 이동
+        const videoId = video.id;
+
+        try{
+            const response_ = await fetch(`${ADDR_}/api/description/${videoId}`, {
+                method: 'GET',
+                headers: {
+                'Content-Type': 'application/json',
+            },
+            });
+            const response = await response_.text();
+            console.log(response);
+            const data = response.split("\n").map(line => line.trim()).filter(line => line !== "");
+
+            //if (!response.ok) {
+            //    throw new Error(`Failed tso fetch recipe: ${response.statusText}`);
+            //}
+
+            //const data = await response_.json();
+            //const data = JSON.parse(response_);
+            //console.log("data", data);
+            setRecipe(data);
+            console.log(data);
+            //setRecipe(response);
+
+            //console.log("Recipe data:", data); // 데이터 확인용
+        } catch (error) {
+            console.error("Error fetching recipe:", error);
         }
-        setPanelData(prev => [...prev, { name: 'detail', data: { index: video.id } }]); // 디테일 패널로 이동
     };
 
     const handleVideoEnd = () => {
@@ -274,7 +310,11 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 >
                     
                     <MediaControls>
-                        <Button onClick={handleGoToDetails}>Go to Details</Button> {/* 디테일로 이동 버튼 */}
+                        <Button onClick={() => {
+                            handleRecipe(),
+                            handleGoToDetails() 
+                            }}
+                            >Go to Recipe</Button> 
                         
                         <Button onClick={() => { 
                             setIsPopupOpen(true);
@@ -430,6 +470,40 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 style={{ marginTop: '10px', width: '80%' }} // 입력창 위 여백
                 />
                 <Button onClick={handleSendMessage} size="small">Send</Button>
+            </Popup>
+
+            <Popup
+                open={isRecipeOpen}
+                onClose={() => setIsRecipeOpen(false)}
+                //style={{ maxWidth: '100%', maxHeight: '500px' }} // 팝업의 최대 크기 제한
+            >
+                <Scroller style={{ maxHeight: '500px' }}>
+                <h2>Recipe Details</h2>
+                    {/*
+                    {recipe.length > 0 ? (
+                        <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+                            {recipe.map((item, index) => (
+                                <li key={index} style={{ marginBottom: '10px', fontSize: '16px', color: '#333' }}>
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p style={{ fontSize: '16px', color: '#666' }}>No recipe data available.</p>
+                    )} */}
+                    {recipe.length > 0 ? (
+                        <div>
+                        {recipe.map((line, index) => (
+                            <p key={index} style={{ marginBottom: '10px' }}>
+                                {line}
+                            </p>
+                        ))}
+                    </div>
+                    ) : (
+                        <h4>No Recipe</h4>
+                    )}
+                            
+                </Scroller>
             </Popup>
         </Panel>
     );
