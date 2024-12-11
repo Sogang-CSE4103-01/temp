@@ -148,7 +148,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer sk-proj-fIOW9oI4ncb64cVZUayQT3BlbkFJ6IShb1CG2CW2RjtjEhzu`, // 여기에 실제 API 키를 입력하세요
+                    'Authorization': ``, // 여기에 실제 API 키를 입력하세요
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
