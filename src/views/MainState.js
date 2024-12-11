@@ -37,6 +37,11 @@ export const useMainState = () => {
 
     console.log("mainstate", videoData);
 
+    const setTotalVideo = async () => {
+        const nums = fetchTotalVideos();
+        
+    }
+
     const fetchTotalVideos = useCallback(async () => {
         try {
             const response = await fetch(`${ADDR_}/api/num_of_videos`);
@@ -109,7 +114,7 @@ export const useMainState = () => {
     }, [totalVideos]); */
 
     // 데이터 로드
-    const loadData = useCallback(async () => {
+    const loadData = async () => {
         console.log("페이지를 불러옵니다");
         setLoading(true); // 로딩 시작
 
@@ -131,6 +136,7 @@ export const useMainState = () => {
                 return uniqueData;
             }); */
             
+            /*
             if (flag == 0 || totalVideos - (page * 10 - 9) >= 10) {
                 flag = 1;
                 const newVideos = await generateVideoData(page * 10 - 9, page * 10); // Fetch 10 videos based on the current page
@@ -156,13 +162,61 @@ export const useMainState = () => {
                 });
                 console.log((page * 10 - 9) + (totalVideos - (page * 10 - 9))); 
             }
+                */
+
+            
+
+            if (videoData.length === 0) {
+                // Case 1: Initial load when videoData is empty
+                console.log("case 1");
+    
+                const newVideos = await generateVideoData(1, Math.min(totalVideos, 10)); // Fetch the first 10 or less videos
+                setVideoData(newVideos);
+                console.log(`Loaded initial videos: 1 to ${Math.min(totalVideos, 10)}`);
+            } else if (totalVideos > videoData.length) {
+                console.log("case 2");
+                /*
+                // Case 2: New videos added (totalVideos > videoData.length)
+                const startIndex = videoData.length + 1; // Start from the next index
+                const endIndex = totalVideos; // Fetch until the new total count
+                const newVideos = await generateVideoData(startIndex, endIndex); // Fetch only the newly added videos
+            
+                setVideoData((prevData) => {
+                    const mergedData = [...prevData, ...newVideos];
+                    const uniqueData = Array.from(new Set(mergedData.map((video) => video.id))).map((id) =>
+                        mergedData.find((video) => video.id === id)
+                    );
+                    return uniqueData; // Return updated videoData with unique entries
+                });
+            
+                console.log(`Loaded new videos: ${startIndex} to ${endIndex}`);  */
+                const startIndex = videoData.length + 1; // Start from the next index
+                const endIndex = Math.min(startIndex + 10 - 1, totalVideos); // Fetch up to 10 new videos
+            
+                const newVideos = await generateVideoData(startIndex, endIndex); // Fetch only the newly added videos
+            
+                setVideoData((prevData) => {
+                    const mergedData = [...prevData, ...newVideos];
+                    const uniqueData = Array.from(new Set(mergedData.map((video) => video.id))).map((id) =>
+                        mergedData.find((video) => video.id === id)
+                    );
+                    return uniqueData; // Return updated videoData with unique entries
+                });
+            
+                console.log(`Loaded new videos: ${startIndex} to ${endIndex}`);
+            }else {
+                console.log("No new videos to load.");
+            }
+            
         } catch (error) {
             console.error('Error loading video data:', error);
         } finally {
             setLoading(false); // 로딩 완료
         }
-    }, [page, totalVideos]);
+    };
 
+
+    /*}
     useEffect(() => {
         const fetchAndLoad = async () => {
             await fetchTotalVideos();
@@ -171,16 +225,44 @@ export const useMainState = () => {
         //fetchTotalVideos();
         //loadData(); // Load the first set of videos on mount
         fetchAndLoad();
-    }, []);
-
+    }, []); */
+    
+    
     const loadMore = () => {
+        fetchTotalVideos();
+        console.log(totalVideos);
+
         if (videoData.length < totalVideos) {
             setPage((prevPage) => prevPage + 1); // Increment the page to load the next set of videos
-
-            fetchTotalVideos();
             loadData();
         }
-    };
+    }; 
+/*
+    const loadMore = async () => {
+    try {
+        // Step 1: Fetch the total number of videos
+        await fetchTotalVideos(); // fetchTotalVideos updates totalVideos
+
+        console.log("Total videos after update:", totalVideos);
+
+        // Step 2: Calculate the expected page based on totalVideos
+        const expectedPage = Math.ceil(totalVideos / 10); // Determine the page number based on totalVideos
+        console.log("Expected page:", expectedPage);
+
+        if (expectedPage > page) {
+            console.log("Loading more videos...");
+
+            // Step 3: Increment the page and load new videos
+            setPage(expectedPage); // Update the page state
+            loadData(expectedPage); // Fetch videos for the new page
+        } else {
+            console.log("No new page to load.");
+        }
+    } catch (error) {
+        console.error("Error during loadMore:", error);
+    }
+}; */
+
 
     // 팝업 관련 핸들러
     const handleLaunchApp = useCallback(async () => {

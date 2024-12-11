@@ -276,11 +276,11 @@ const Main = (props) => {
                         onChange={handleSearchChange}
                         
                     />
-                    <Scroller>
-                        {videoItems.length > 0 ? videoItems : 'No Videos'}
-                        <Button onClick={loadMore} disabled={loading}>
+					<Button onClick={loadMore} disabled={loading}>
                             {loading ? 'Loading...' : 'More'}
                         </Button>
+                    <Scroller>
+                        {videoItems.length > 0 ? videoItems : 'No Videos'}
                     </Scroller>
                 </Tab>
 				<Tab title={tabsWithIcons[5].title} icon={tabsWithIcons[5].icon} onTabClick={() => fetchWatchedVideos()}>
