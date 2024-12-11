@@ -224,6 +224,8 @@ const loadPlaylists = useCallback(() => {
     page,
     playlists,
     //loading,
+    addition,
+    setAddition,
     playlistVideo,
     fetchPlaylists,
     loadPlaylists,

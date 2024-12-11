@@ -148,7 +148,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer `, // 여기에 실제 API 키를 입력하세요
+                    'Authorization': `Bearer sk-proj-fIOW9oI4ncb64cVZUayQT3BlbkFJ6IShb1CG2CW2RjtjEhzu`, // 여기에 실제 API 키를 입력하세요
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -320,7 +320,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                             setIsPopupOpen(true);
                             //fetchComments();
                             }}>Comments</Button> {/* 팝업 버튼 추가 */}
-                        <Button onClick={() => setIsBotOpen(true)}>챗봇</Button> 
+                        <Button onClick={() => setIsBotOpen(true)}>Chatbot</Button> 
                         <Button onClick={() => {
                             const videoNode = videoRef.current.getVideoNode(); // 비디오 노드 가져오기
                             if (videoNode) {
@@ -370,7 +370,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                         comments.map((c) => (
                             <div key={c.id} style={{ marginBottom: '10px', padding: '5px' }}>
                                 <h5 style={{ fontSize: '0.8rem', margin: 0, fontWeight: 'bold' }}>
-                                    comment: {c.content}
+                                    {c.content}
                                     {/*
                                     <span style={{ fontSize: '0.6rem', marginLeft: '10px', color: '#666' }}>
                                         / User ID: {comment.userId}
@@ -429,7 +429,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                     //postComment(comment);
                     setComment(''); // 댓글 입력 초기화
                     console.log('end of post');
-                }}>댓글 남기기</Button>  
+                }}>Send Comment</Button>  
 
                 <Button onClick={() => {
                     setPage(prev => prev + 1);
@@ -478,7 +478,7 @@ const SelectableVideoPlayer = ({ video, startTime }) => {
                 //style={{ maxWidth: '100%', maxHeight: '500px' }} // 팝업의 최대 크기 제한
             >
                 <Scroller style={{ maxHeight: '500px' }}>
-                <h2>Recipe Details</h2>
+                <h2>Details</h2>
                     {/*
                     {recipe.length > 0 ? (
                         <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>

@@ -61,6 +61,8 @@ const Main = (props) => {
 		page,
 		playlists,
 		playlistVideo,
+		addition,
+		setAddition,
 		//loading,
 		fetchPlaylists,
 		loadPlaylists,
@@ -264,7 +266,7 @@ const Main = (props) => {
 				height: '100%', // 패널 전체를 덮기 위해 높이 지정
 			}}
 		>
-			<Header title="LLG" subtitle={`user ${userId}`} />
+			<Header title="Plate By Me" subtitle={`user ${userId}`} />
 			<TabLayout >
 			<Tab title={tabsWithIcons[0].title} icon={tabsWithIcons[0].icon}>
                     <InputField
@@ -396,6 +398,7 @@ const Main = (props) => {
 							}}
 							onClick={() => {
 								addVideos();
+								setAddition([]);
 								setIsAddingVideo(true);
 							}}
 							>Add
