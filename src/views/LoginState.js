@@ -13,10 +13,16 @@ export const useLogin = () => {
 	const [loginMessage, setLoginMessage] = useState(''); // 로그인 메시지 상태 추가
     const { setPanelData } = useContext(PanelContext);
 
+	const deletecashe = useCallback(() => {
+		localStorage.clear();
+
+	}, []);
+
 	const handleLoginOpen = useCallback(() => {
 		setLoginOpen(true);
 		setLoginMessage(''); // 메시지 초기화
 	}, []);
+
 
 	const handleLoginClose = useCallback(() => {
 		setLoginOpen(false);
@@ -93,5 +99,6 @@ export const useLogin = () => {
 		handleCancel,
 		username,
 		password,
+		deletecashe,
 	};
 };

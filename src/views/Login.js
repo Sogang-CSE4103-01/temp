@@ -33,6 +33,7 @@ const Login = ({ onSubmit, onClose }) => {
         handlePasswordChange,
         username,
         password,
+        deletecashe,
     } = useLogin();
 
     const {
@@ -80,6 +81,14 @@ const Login = ({ onSubmit, onClose }) => {
                         </Button>
                         {/* 로그인 메시지 표시 */}
                         {loginMessage && <BodyText className={css.loginMessage}>{loginMessage}</BodyText>}
+
+                        <h1> </h1>
+                        <h1> </h1>
+                        <h1> </h1>
+                        <h1> </h1>
+                        <Button onClick={deletecashe} size="small" className={css.button}>
+                                Delete Cache
+                        </Button>
                     </div>
                 </Tab>
 
